@@ -58,10 +58,10 @@ export default function Footer() {
             </h3>
             <div className="flex flex-col gap-2 text-sm text-white/60">
               <p>Sundays at 10:00 AM</p>
-              <p>Perth, Western Australia</p>
+              <p>Unit 1/16 Roxby Ln, Willetton WA 6155</p>
               <div className="flex gap-4 mt-3">
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/libertylifecentre"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white/60 hover:text-white transition-colors"
@@ -70,7 +70,7 @@ export default function Footer() {
                   Facebook
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/libertylifecentrewa"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white/60 hover:text-white transition-colors"
@@ -79,7 +79,7 @@ export default function Footer() {
                   Instagram
                 </a>
                 <a
-                  href="https://youtube.com"
+                  href="https://www.youtube.com/@libertylifeperth5011"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white/60 hover:text-white transition-colors"
@@ -97,7 +97,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Liberty Life Perth. All rights reserved.
           </p>
           <p className="text-xs text-white/40">
-            Perth, Western Australia
+            Unit 1/16 Roxby Ln, Willetton WA 6155
           </p>
         </div>
       </div>

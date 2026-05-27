@@ -41,13 +41,20 @@ export default function ContactPage() {
                 Location
               </h3>
               <p className="text-sm text-white/70 leading-relaxed">
-                Perth, Western Australia
+                Unit 1/16 Roxby Ln<br />
+                Willetton WA 6155
               </p>
-              {/* Google Maps embed placeholder — add address when confirmed */}
-              <div className="mt-4 aspect-video rounded-xl overflow-hidden bg-navy-dark flex items-center justify-center">
-                <p className="text-white/30 text-xs text-center px-4">
-                  Map will appear here once the address is confirmed
-                </p>
+              <div className="mt-4 aspect-video rounded-xl overflow-hidden">
+                <iframe
+                  src="https://maps.google.com/maps?q=Unit+1%2F16+Roxby+Ln%2C+Willetton+WA+6155&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Liberty Life Perth location"
+                />
               </div>
             </div>
 
@@ -58,9 +65,9 @@ export default function ContactPage() {
               </h3>
               <div className="flex gap-4">
                 {[
-                  { label: "Facebook", href: "https://facebook.com" },
-                  { label: "Instagram", href: "https://instagram.com" },
-                  { label: "YouTube", href: "https://youtube.com" },
+                  { label: "Facebook", href: "https://www.facebook.com/libertylifecentre" },
+                  { label: "Instagram", href: "https://www.instagram.com/libertylifecentrewa" },
+                  { label: "YouTube", href: "https://www.youtube.com/@libertylifeperth5011" },
                 ].map((s) => (
                   <a
                     key={s.label}
