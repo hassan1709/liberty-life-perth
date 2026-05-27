@@ -10,7 +10,8 @@
 **Church:** Liberty Life Perth  
 **Tagline:** "A church where you're not a member but you're family"  
 **Location:** Perth, Western Australia  
-**Domain:** libertylifeperth.church (or .org — confirm before deploy)  
+**Domain:** libertylifeperth.church (to be purchased via AWS Route 53)  
+**Address:** Unit 1/16 Roxby Ln, Willetton WA 6155  
 **Purpose:** Public-facing church website for first-time visitors and regular attendees
 
 ---
@@ -25,7 +26,8 @@
 | CMS | Sanity v3 (via `next-sanity`) | Content for sermons, pages, staff, announcements |
 | Church data | Planning Center API | Events, groups, giving — via REST + Basic Auth |
 | Hosting | AWS Amplify | Git-push deploys, auto SSL, CDN. Config in `amplify.yml` |
-| Email | Resend | Contact form submissions. Client instantiated per-request (not module-level) |
+| Email (transactional) | AWS SES | Contact form submissions — to be set up after domain is live. Swap Resend code for SES. |
+| Email (mailboxes) | Google Workspace | Church staff email addresses with custom domain ($6/user/month) |
 | Video | YouTube embeds | No self-hosted video |
 | Analytics | None initially | Add later if needed |
 
@@ -290,6 +292,37 @@ otherwise the module fails to load at build time.
 
 ---
 
+## GitHub
+
+**Repo:** https://github.com/hassan1709/liberty-life-perth (public)  
+**Branch protection:** `main` requires PR + 1 approval before merge  
+**Collaborators:** maragir (write access)
+
+---
+
+## Sanity
+
+**Project ID:** `9ba0wd09`  
+**Dataset:** `production`  
+**Organisation ID:** `oDlX6GhYF`  
+**Studio (local):** http://localhost:3000/studio  
+**Studio (production):** https://libertylifeperth.church/studio  
+**CORS origins:** `http://localhost:3000` (add production URL when live)  
+**Webhook secret:** `llp-webhook-2026` (set in `.env.local` — configure in Sanity when domain is live)
+
+Content editors are invited via sanity.io/manage → Members → Invite (set role to Editor).
+
+---
+
+## Email setup (post-domain)
+
+1. Buy domain on Route 53
+2. Verify domain in AWS SES → replace Resend code in `app/api/contact/route.ts`
+3. Set up Google Workspace → migrate existing free Gmail accounts to new domain addresses
+4. Old emails can be imported via Google Workspace Data Migration Service
+
+---
+
 ## AWS Amplify setup
 
 1. Push repo to GitHub
@@ -303,17 +336,25 @@ otherwise the module fails to load at build time.
 
 ## Pending / TODO
 
-- [ ] Create Sanity project at sanity.io, get real `NEXT_PUBLIC_SANITY_PROJECT_ID`
-- [ ] Fill in `.env.local` with all real credentials
-- [ ] Confirm church street address — update Contact page Map embed and Footer
-- [ ] Update Footer + Contact page social links (Facebook, Instagram, YouTube URLs)
+### Done
+- [x] Create Sanity project — ID `9ba0wd09`
+- [x] Fill in `.env.local` with Sanity credentials
+- [x] Confirm church street address — Contact page + Footer updated
+- [x] Update Footer + Contact page social links (Facebook, Instagram, YouTube)
+- [x] GitHub repo set up — public, branch protection on main, collaborator added
+
+### In progress / next session
+- [ ] Buy domain `libertylifeperth.church` via AWS Route 53
+- [ ] Connect GitHub repo to AWS Amplify
+- [ ] Add domain in Amplify Domain management
+- [ ] Set up Google Workspace for church emails (migrate old Gmail accounts)
+- [ ] Verify domain in AWS SES — update contact form to use SES instead of Resend
+- [ ] Set up Sanity webhook → `POST https://libertylifeperth.church/api/revalidate?secret=llp-webhook-2026`
 - [ ] Update Give page bank transfer details (BSB, account number)
 - [ ] Update Give page Planning Center Giving URL
-- [ ] Set up Sanity webhook in Sanity project → `POST /api/revalidate?secret=...`
-- [ ] Connect GitHub repo to AWS Amplify
-- [ ] Add domain `libertylifeperth.church` in Amplify Domain management
+- [ ] Add Planning Center credentials to `.env.local` and Amplify env vars
 - [ ] Add staff photos and content in Sanity Studio (`/studio`)
 
 ---
 
-*Last updated: May 2026 — reflects full initial build with Next.js 16 + Tailwind v4*
+*Last updated: May 2026 — Sanity connected, GitHub configured, address + socials updated*
