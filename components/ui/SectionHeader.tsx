@@ -3,7 +3,6 @@ type SectionHeaderProps = {
   title: string;
   subtitle?: string;
   center?: boolean;
-  light?: boolean;
 };
 
 export default function SectionHeader({
@@ -11,7 +10,6 @@ export default function SectionHeader({
   title,
   subtitle,
   center = false,
-  light = false,
 }: SectionHeaderProps) {
   return (
     <div className={`flex flex-col gap-3 ${center ? "items-center text-center" : ""}`}>
@@ -20,11 +18,7 @@ export default function SectionHeader({
           {eyebrow}
         </span>
       )}
-      <h2
-        className={`font-display text-3xl md:text-4xl font-medium leading-tight ${
-          light ? "text-white" : "text-white"
-        }`}
-      >
+      <h2 className="font-display text-3xl md:text-4xl font-medium leading-tight text-white">
         {title}
       </h2>
       {subtitle && (

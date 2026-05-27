@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import Image from "next/image";
 import Link from "next/link";
 import { getSermonBySlug, getAllSermons } from "@/lib/sanity/queries";
-import { urlFor } from "@/lib/sanity/image";
 import Button from "@/components/ui/Button";
 
 export const revalidate = 86400;

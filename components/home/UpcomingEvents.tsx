@@ -1,4 +1,3 @@
-import Link from "next/link";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Button from "@/components/ui/Button";
 import type { PCEvent } from "@/lib/planningcenter/types";
