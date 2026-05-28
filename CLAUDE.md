@@ -10,7 +10,7 @@
 **Church:** Liberty Life Perth  
 **Tagline:** "A church where you're not a member but you're family"  
 **Location:** Perth, Western Australia  
-**Domain:** libertylifeperth.church (to be purchased via AWS Route 53)  
+**Domain:** libertylifeperth.org (main) — libertylifecentre.org, libertylifecentre.com, libertylifeperth.com redirect to main  
 **Address:** Unit 1/16 Roxby Ln, Willetton WA 6155  
 **Purpose:** Public-facing church website for first-time visitors and regular attendees
 
@@ -306,8 +306,8 @@ otherwise the module fails to load at build time.
 **Dataset:** `production`  
 **Organisation ID:** `oDlX6GhYF`  
 **Studio (local):** http://localhost:3000/studio  
-**Studio (production):** https://libertylifeperth.church/studio  
-**CORS origins:** `http://localhost:3000` (add production URL when live)  
+**Studio (production):** https://libertylifeperth.org/studio  
+**CORS origins:** `http://localhost:3000` (add `https://libertylifeperth.org` when live)  
 **Webhook secret:** `llp-webhook-2026` (set in `.env.local` — configure in Sanity when domain is live)
 
 Content editors are invited via sanity.io/manage → Members → Invite (set role to Editor).
@@ -344,12 +344,12 @@ Content editors are invited via sanity.io/manage → Members → Invite (set rol
 - [x] GitHub repo set up — public, branch protection on main, collaborator added
 
 ### In progress / next session
-- [ ] Buy domain `libertylifeperth.church` via AWS Route 53
+- [x] Buy domains via AWS Route 53 — main: libertylifeperth.org, redirects: libertylifecentre.org, libertylifecentre.com, libertylifeperth.com
 - [ ] Connect GitHub repo to AWS Amplify
 - [ ] Add domain in Amplify Domain management
 - [ ] Set up Google Workspace for church emails (migrate old Gmail accounts)
 - [ ] Verify domain in AWS SES — update contact form to use SES instead of Resend
-- [ ] Set up Sanity webhook → `POST https://libertylifeperth.church/api/revalidate?secret=llp-webhook-2026`
+- [ ] Set up Sanity webhook → `POST https://libertylifeperth.org/api/revalidate?secret=llp-webhook-2026`
 - [ ] Update Give page bank transfer details (BSB, account number)
 - [ ] Update Give page Planning Center Giving URL
 - [ ] Add Planning Center credentials to `.env.local` and Amplify env vars
