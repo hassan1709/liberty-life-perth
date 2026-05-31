@@ -307,10 +307,14 @@ otherwise the module fails to load at build time.
 **Organisation ID:** `oDlX6GhYF`  
 **Studio (local):** http://localhost:3000/studio  
 **Studio (production):** https://libertylifeperth.org/studio  
-**CORS origins:** `http://localhost:3000` (add `https://libertylifeperth.org` when live)  
-**Webhook secret:** `llp-webhook-2026` (set in `.env.local` — configure in Sanity when domain is live)
+**CORS origins:** `http://localhost:3000`, `https://libertylifeperth.org` — both with **Allow credentials enabled**  
+**Webhook:** `POST https://libertylifeperth.org/api/revalidate?secret=llp-webhook-2026` ✅ configured  
+**Studio hosts:** `https://libertylifeperth.org/studio` registered  
 
-Content editors are invited via sanity.io/manage → Members → Invite (set role to Editor).
+> **Gotcha:** CORS origins for the studio MUST have "Allow credentials" enabled. Without it the studio throws a CorsOriginError and shows "Register this studio" instead of the editor.
+
+Content editors are invited via sanity.io/manage → Members → Invite (set role to Editor).  
+They access the studio at `https://libertylifeperth.org/studio` directly (not via the sanity.io iframe).
 
 ---
 
@@ -329,7 +333,7 @@ Content editors are invited via sanity.io/manage → Members → Invite (set rol
 2. Connect GitHub repo to Amplify (new app → from Git)
 3. Add all environment variables in Amplify console → App settings → Environment variables
 4. Build settings are in `amplify.yml` at the repo root — Amplify auto-detects it
-5. Custom domain: Amplify → Domain management → add `libertylifeperth.church`
+5. Custom domain: Amplify → Domain management → add `libertylifeperth.org`
 6. SSL: provisioned automatically
 
 ---
@@ -342,14 +346,16 @@ Content editors are invited via sanity.io/manage → Members → Invite (set rol
 - [x] Confirm church street address — Contact page + Footer updated
 - [x] Update Footer + Contact page social links (Facebook, Instagram, YouTube)
 - [x] GitHub repo set up — public, branch protection on main, collaborator added
-
-### In progress / next session
 - [x] Buy domains via AWS Route 53 — main: libertylifeperth.org, redirects: libertylifecentre.org, libertylifecentre.com, libertylifeperth.com
-- [ ] Connect GitHub repo to AWS Amplify
-- [ ] Add domain in Amplify Domain management
+- [x] Connect GitHub repo to AWS Amplify (ap-southeast-2 / Sydney)
+- [x] All 4 domains configured in Amplify Domain management
+- [x] Sanity CORS origins configured (localhost + production, both with Allow credentials)
+- [x] Sanity webhook configured
+- [x] Sanity Studio working at https://libertylifeperth.org/studio
+
+### Next session
 - [ ] Set up Google Workspace for church emails (migrate old Gmail accounts)
 - [ ] Verify domain in AWS SES — update contact form to use SES instead of Resend
-- [ ] Set up Sanity webhook → `POST https://libertylifeperth.org/api/revalidate?secret=llp-webhook-2026`
 - [ ] Update Give page bank transfer details (BSB, account number)
 - [ ] Update Give page Planning Center Giving URL
 - [ ] Add Planning Center credentials to `.env.local` and Amplify env vars
@@ -357,4 +363,4 @@ Content editors are invited via sanity.io/manage → Members → Invite (set rol
 
 ---
 
-*Last updated: May 2026 — Sanity connected, GitHub configured, address + socials updated*
+*Last updated: May 2026 — Site live on Amplify, all domains configured, Sanity Studio working*
