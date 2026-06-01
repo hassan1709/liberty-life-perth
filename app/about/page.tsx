@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import { getAboutPage } from "@/lib/sanity/queries";
 import { urlFor } from "@/lib/sanity/image";
 
-export const revalidate = false;
+export const revalidate = 60;
 
 export default async function AboutPage() {
   const data = await getAboutPage().catch(() => null);

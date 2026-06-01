@@ -3,7 +3,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import Button from "@/components/ui/Button";
 import { getGivePage } from "@/lib/sanity/queries";
 
-export const revalidate = false;
+export const revalidate = 60;
 
 export default async function GivePage() {
   const page = await getGivePage().catch(() => null);
