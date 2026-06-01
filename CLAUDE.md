@@ -274,6 +274,9 @@ Calls `revalidateTag(tag, { expire: 0 })` — Next.js 16 requires the second arg
 revalidateTag(tag, { expire: 0 })  // NOT revalidateTag(tag)
 ```
 
+**`revalidateTag` on Amplify requires two requests to see updated content:**  
+After the webhook fires and `revalidateTag` is called, the first request to the page serves the stale cache and triggers background regeneration. The second request serves fresh content. This is standard ISR stale-while-revalidate behaviour — it works correctly, just not instantly on the first hit.
+
 **`@sanity/image-url` — use named export:**
 ```ts
 import { createImageUrlBuilder } from "@sanity/image-url"  // NOT default import
@@ -289,6 +292,12 @@ Fix: `rm node_modules/.bin/next && ln -s ../next/dist/bin/next node_modules/.bin
 **Resend client — do not instantiate at module level:**  
 Instantiate inside the request handler after checking `process.env.RESEND_API_KEY` exists,  
 otherwise the module fails to load at build time.
+
+**About and Give pages use `revalidate = 60` (not `revalidate = false`):**  
+These were changed from fully static to ISR with a 60-second revalidation as a safety net for Amplify. The webhook still triggers on-demand revalidation — the 60s is just a fallback.
+
+**Amplify password protection blocks the Sanity Studio iframe on sanity.io:**  
+When password protection is enabled, sanity.io cannot embed the studio in an iframe. Content editors should use `https://libertylifeperth.org/studio` directly. The direct URL works fine with or without password protection.
 
 ---
 
@@ -350,8 +359,10 @@ They access the studio at `https://libertylifeperth.org/studio` directly (not vi
 - [x] Connect GitHub repo to AWS Amplify (ap-southeast-2 / Sydney)
 - [x] All 4 domains configured in Amplify Domain management
 - [x] Sanity CORS origins configured (localhost + production, both with Allow credentials)
-- [x] Sanity webhook configured
+- [x] Sanity webhook configured and verified working
 - [x] Sanity Studio working at https://libertylifeperth.org/studio
+- [x] ISR revalidation verified working on Amplify (About + Give pages set to revalidate = 60)
+- [x] CONTENT-MAP.md created — maps website sections to Sanity content types
 
 ### Next session
 - [ ] Set up Google Workspace for church emails (migrate old Gmail accounts)
@@ -363,4 +374,4 @@ They access the studio at `https://libertylifeperth.org/studio` directly (not vi
 
 ---
 
-*Last updated: May 2026 — Site live on Amplify, all domains configured, Sanity Studio working*
+*Last updated: June 2026 — ISR + webhook verified, content mapping documented, site fully operational*
