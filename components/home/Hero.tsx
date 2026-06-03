@@ -1,4 +1,5 @@
 import Button from "@/components/ui/Button";
+import PrayerRequestButton from "@/components/ui/PrayerRequestButton";
 
 export default function Hero() {
   return (
@@ -35,10 +36,8 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button href="/contact" size="lg">
-            Plan a visit
-          </Button>
-          <Button href="https://youtube.com" variant="outline" size="lg" external>
+          <PrayerRequestButton size="lg" />
+          <Button href="https://www.youtube.com/@libertylifeperth5011" variant="outline" size="lg" external>
             Watch online
           </Button>
         </div>

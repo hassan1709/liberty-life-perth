@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -29,21 +29,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid field values" }, { status: 400 });
   }
 
+  const gmailUser = process.env.CONTACT_EMAIL_FROM;
+  const gmailPass = process.env.CONTACT_EMAIL_APP_PASSWORD;
   const to = process.env.CONTACT_EMAIL_TO;
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!to || !apiKey) {
+
+  if (!gmailUser || !gmailPass || !to) {
     return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
   }
 
-  const resend = new Resend(apiKey);
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: gmailUser, pass: gmailPass },
+  });
 
   try {
-    await resend.emails.send({
-      from: "Liberty Life Perth <noreply@libertylifeperth.church>",
+    await transporter.sendMail({
+      from: `"Liberty Life Perth" <${gmailUser}>`,
       to,
       replyTo: email.trim(),
-      subject: `New message from ${name.trim()} via libertylifeperth.church`,
-      text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\n${message.trim()}`,
+      subject: `New message from ${name.trim()} via libertylifeperth.org`,
+      text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\nMessage:\n${message.trim()}`,
     });
 
     return NextResponse.json({ success: true });

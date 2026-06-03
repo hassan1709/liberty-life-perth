@@ -22,7 +22,7 @@ export default function ServiceBar() {
           </div>
           <div className="hidden sm:block h-4 w-px bg-white/20" />
           <Link
-            href="https://youtube.com"
+            href="https://www.youtube.com/@libertylifeperth5011"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-rosegold hover:text-rosegold-light transition-colors font-medium"

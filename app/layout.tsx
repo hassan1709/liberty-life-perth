@@ -30,6 +30,11 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
       <body className="min-h-screen flex flex-col bg-navy text-white antialiased">
         <Nav />
+        <div className="mt-32 w-full bg-navy-dark/80 border-b border-white/10 text-center py-2 px-4">
+          <p className="text-xs text-white/40 tracking-wide">
+            Website currently under renovation — some content may be incomplete.
+          </p>
+        </div>
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

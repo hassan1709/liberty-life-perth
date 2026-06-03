@@ -16,17 +16,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center">
               <Image
-                src="/logo-white.png"
+                src="/logo-no-bg.png"
                 alt="Liberty Life Perth"
-                width={40}
-                height={40}
-                className="object-contain"
+                width={1920}
+                height={1080}
+                className="object-contain h-16 w-auto"
               />
-              <span className="font-display text-lg font-medium text-white">
-                Liberty Life Perth
-              </span>
             </Link>
             <p className="text-sm text-white/60 leading-relaxed">
               A church where you&apos;re not a member but you&apos;re family.
