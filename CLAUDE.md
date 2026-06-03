@@ -26,8 +26,8 @@
 | CMS | Sanity v3 (via `next-sanity`) | Content for sermons, pages, staff, announcements |
 | Church data | Planning Center API | Events, groups, giving — via REST + Basic Auth |
 | Hosting | AWS Amplify | Git-push deploys, auto SSL, CDN. Config in `amplify.yml` |
-| Email (transactional) | AWS SES | Contact form submissions — to be set up after domain is live. Swap Resend code for SES. |
-| Email (mailboxes) | Google Workspace | Church staff email addresses with custom domain ($6/user/month) |
+| Email (transactional) | Nodemailer + Gmail SMTP | Contact form submissions via `webadmin@libertylifeperth.org` — swap credentials when Workspace is ready |
+| Email (mailboxes) | Google Workspace (Nonprofits) | Applied for free nonprofit plan — pending approval. Legal entity: Liberty Christian Centre Inc (ABN 81 763 203 730) |
 | Video | YouTube embeds | No self-hosted video |
 | Analytics | None initially | Add later if needed |
 
@@ -67,8 +67,8 @@ Use `font-display` for headings/hero, `font-sans` for body (default).
 
 ### Logo
 
-- File: `public/logo-white.png` (copied from `Assets/LogoLibertyLifePerth.png`)
-- Used in Nav and Footer
+- File: `public/logo-no-bg.png` — transparent background, 1920×1080, used in Nav (`h-28 w-auto`) and Footer (`h-16 w-auto`)
+- Old file `public/logo-white.png` still exists but no longer used
 - The circular motif is echoed as decorative background rings in hero/CTA sections
 
 ### Design principles
@@ -106,7 +106,7 @@ libertylifeperth/
 │   │       └── page.tsx        # Embedded Sanity Studio ("use client")
 │   └── api/
 │       ├── contact/
-│       │   └── route.ts        # POST → Resend email
+│       │   └── route.ts        # POST → Nodemailer (Gmail SMTP)
 │       ├── events/
 │       │   └── route.ts        # GET → Planning Center proxy (revalidate 3600)
 │       └── revalidate/
@@ -129,8 +129,9 @@ libertylifeperth/
 │   ├── events/
 │   │   └── EventItem.tsx       # Event article with date badge, location, register link
 │   └── ui/
-│       ├── Button.tsx          # primary / outline / ghost variants, Link or button
-│       └── SectionHeader.tsx   # eyebrow + title + subtitle pattern
+│       ├── Button.tsx               # primary / outline / ghost variants, Link or button
+│       ├── PrayerRequestButton.tsx  # "use client" button that opens prayer request modal via portal
+│       └── SectionHeader.tsx        # eyebrow + title + subtitle pattern
 ├── lib/
 │   ├── sanity/
 │   │   ├── client.ts           # Sanity client (falls back to "placeholder" projectId at build)
@@ -175,17 +176,19 @@ SANITY_WEBHOOK_SECRET=               # Any random string — set the same in San
 PLANNING_CENTER_APP_ID=              # From api.planningcenteronline.com/oauth/applications
 PLANNING_CENTER_SECRET=
 
-# Resend (contact form email)
-RESEND_API_KEY=                      # From resend.com dashboard
-CONTACT_EMAIL_TO=                    # Church admin email address that receives contact messages
+# Contact form email (Gmail SMTP via Nodemailer)
+CONTACT_EMAIL_FROM=                  # Gmail address used to send (e.g. webadmin@libertylifeperth.org)
+CONTACT_EMAIL_APP_PASSWORD=          # Gmail App Password (Google Account → Security → App Passwords)
+CONTACT_EMAIL_TO=                    # Email address(es) that receive messages — comma-separate for multiple
 
 # App
-NEXT_PUBLIC_SITE_URL=https://libertylifeperth.church
+NEXT_PUBLIC_SITE_URL=https://libertylifeperth.org
 ```
 
 > **Build note:** The app builds successfully without real env vars (Sanity falls back to
-> `"placeholder"` projectId, Resend client is instantiated per-request). Pages that depend
-> on Sanity will show empty/fallback states until real credentials are set.
+> `"placeholder"` projectId). Pages that depend on Sanity will show empty/fallback states until real credentials are set.
+
+> **Amplify runtime env vars:** Amplify SSR Lambda functions do not have access to `process.env` from the console at runtime. The `amplify.yml` build step pipes env vars into `.env.production` before `npm run build` so Next.js API routes can read them. Always add new server-side env vars to the grep pattern in `amplify.yml`.
 
 ---
 
@@ -263,7 +266,7 @@ Calls `revalidateTag(tag, { expire: 0 })` — Next.js 16 requires the second arg
 - Mobile-first Tailwind — base styles are mobile, use `md:` and `lg:` for larger screens
 - Components are named with PascalCase, files match component names
 - Route Handlers live in `app/api/` — all external API calls are server-side only
-- `"use client"` only on components that need browser APIs (Nav hamburger, SeriesFilter, ContactForm, Studio)
+- `"use client"` only on components that need browser APIs (Nav hamburger, SeriesFilter, ContactForm, PrayerRequestButton, Studio)
 
 ---
 
@@ -289,9 +292,8 @@ Custom tokens (colors, fonts) go in `globals.css` inside `@theme { }`. No JavaSc
 On some npm versions it gets created as a flat copy, breaking relative `require()` paths.  
 Fix: `rm node_modules/.bin/next && ln -s ../next/dist/bin/next node_modules/.bin/next`
 
-**Resend client — do not instantiate at module level:**  
-Instantiate inside the request handler after checking `process.env.RESEND_API_KEY` exists,  
-otherwise the module fails to load at build time.
+**Nodemailer (Gmail SMTP) — instantiate inside the request handler:**  
+Create the transporter inside the POST handler after checking env vars exist, not at module level.
 
 **About and Give pages use `revalidate = 60` (not `revalidate = false`):**  
 These were changed from fully static to ISR with a 60-second revalidation as a safety net for Amplify. The webhook still triggers on-demand revalidation — the 60s is just a fallback.
@@ -327,12 +329,15 @@ They access the studio at `https://libertylifeperth.org/studio` directly (not vi
 
 ---
 
-## Email setup (post-domain)
+## Email setup
 
-1. Buy domain on Route 53
-2. Verify domain in AWS SES → replace Resend code in `app/api/contact/route.ts`
-3. Set up Google Workspace → migrate existing free Gmail accounts to new domain addresses
-4. Old emails can be imported via Google Workspace Data Migration Service
+Contact form currently uses **Nodemailer + Gmail SMTP** (`webadmin@libertylifeperth.org`).  
+To switch senders (e.g. when Google Workspace Nonprofits is approved), just update three env vars — no code changes needed:
+- `CONTACT_EMAIL_FROM` — sending address
+- `CONTACT_EMAIL_APP_PASSWORD` — Gmail App Password for that account
+- `CONTACT_EMAIL_TO` — receiving address(es), comma-separated for multiple
+
+**Google Workspace for Nonprofits** — applied June 2026. Entity: Liberty Christian Centre Inc (ABN 81 763 203 730). Qualifies via ACNC registration + ATO income tax exempt status. DGR status not required.
 
 ---
 
@@ -363,15 +368,22 @@ They access the studio at `https://libertylifeperth.org/studio` directly (not vi
 - [x] Sanity Studio working at https://libertylifeperth.org/studio
 - [x] ISR revalidation verified working on Amplify (About + Give pages set to revalidate = 60)
 - [x] CONTENT-MAP.md created — maps website sections to Sanity content types
+- [x] Contact form swapped from Resend to Nodemailer + Gmail SMTP — verified working in production
+- [x] Amplify runtime env var fix — vars piped into `.env.production` via `amplify.yml`
+- [x] New logo (`logo-no-bg.png`) in Nav and Footer
+- [x] "Prayer request" modal (portal-based) replacing "Plan a visit" button in Nav + Hero
+- [x] Give page: removed "Give online" card, added real bank transfer details (Liberty Life Centre, BSB 016-268, Acc 4956 4301 5)
+- [x] All YouTube links updated to `@libertylifeperth5011`
+- [x] "Website under renovation" banner added to all pages via layout
+- [x] Applied for Google Workspace for Nonprofits (June 2026)
 
 ### Next session
-- [ ] Set up Google Workspace for church emails (migrate old Gmail accounts)
-- [ ] Verify domain in AWS SES — update contact form to use SES instead of Resend
-- [ ] Update Give page bank transfer details (BSB, account number)
+- [ ] Activate Google Workspace once approved — set up church email accounts
+- [ ] Update contact form env vars to use new Workspace email accounts
 - [ ] Update Give page Planning Center Giving URL
 - [ ] Add Planning Center credentials to `.env.local` and Amplify env vars
 - [ ] Add staff photos and content in Sanity Studio (`/studio`)
 
 ---
 
-*Last updated: June 2026 — ISR + webhook verified, content mapping documented, site fully operational*
+*Last updated: June 2026 — contact form live, prayer request modal, new logo, bank transfer details added*
