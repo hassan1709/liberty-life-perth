@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const { name, email, message } = body as { name: string; email: string; message: string };
+  const { name, email, message, type } = body as { name: string; email: string; message: string; type?: string };
 
   if (
     typeof name !== "string" || name.trim().length < 1 ||
@@ -47,7 +47,9 @@ export async function POST(req: NextRequest) {
       from: `"Liberty Life Perth" <${gmailUser}>`,
       to,
       replyTo: email.trim(),
-      subject: `New message from ${name.trim()} via libertylifeperth.org`,
+      subject: type === "prayer"
+        ? `New prayer request from ${name.trim()}`
+        : `New message from ${name.trim()} via libertylifeperth.org`,
       text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\nMessage:\n${message.trim()}`,
     });
 

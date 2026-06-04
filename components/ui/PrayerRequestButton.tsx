@@ -41,7 +41,7 @@ export default function PrayerRequestButton({ size = "md", variant = "primary", 
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message: `[Prayer Request]\n\n${message}` }),
+        body: JSON.stringify({ name, email, message, type: "prayer" }),
       });
 
       if (!res.ok) {
