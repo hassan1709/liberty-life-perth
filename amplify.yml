@@ -6,7 +6,7 @@ frontend:
         - npm ci
     build:
       commands:
-        - env | grep -E "CONTACT_EMAIL|SANITY|PLANNING_CENTER|NEXT_PUBLIC" >> .env.production
+        - env | grep -E "CONTACT_EMAIL|SANITY|PLANNING_CENTER|NEXT_PUBLIC|ANTHROPIC" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
