@@ -23,11 +23,12 @@
 | Framework | Next.js 16.2.6 (App Router) | Use App Router, not Pages Router. Turbopack enabled by default. |
 | Language | TypeScript 5 | Strict mode enabled |
 | Styling | Tailwind CSS v4 | **No tailwind.config.ts** — brand tokens live in `globals.css` `@theme` block |
-| CMS | Sanity v3 (via `next-sanity`) | Content for sermons, pages, staff, announcements |
+| CMS | Sanity v3 (via `next-sanity`) | Content for testimonies, pages, staff, announcements |
 | Church data | Planning Center API | Events, groups, giving — via REST + Basic Auth |
 | Hosting | AWS Amplify | Git-push deploys, auto SSL, CDN. Config in `amplify.yml` |
-| Email (transactional) | Nodemailer + Gmail SMTP | Contact form submissions via `webadmin@libertylifeperth.org` — swap credentials when Workspace is ready |
+| Email (transactional) | Nodemailer + Gmail SMTP | Contact form + prayer requests + testimony notifications via `webadmin@libertylifeperth.org` |
 | Email (mailboxes) | Google Workspace (Nonprofits) | Applied for free nonprofit plan — pending approval. Legal entity: Liberty Christian Centre Inc (ABN 81 763 203 730) |
+| AI | Anthropic Claude Haiku | Prayer request pipeline (3-stage) + testimony moderation |
 | Video | YouTube embeds | No self-hosted video |
 | Analytics | None initially | Add later if needed |
 
@@ -90,14 +91,17 @@ libertylifeperth/
 │   ├── page.tsx                # Home (ISR, revalidate 3600s)
 │   ├── about/
 │   │   └── page.tsx            # SSG (revalidate: false)
-│   ├── sermons/
-│   │   ├── page.tsx            # Sermon list (revalidate: 86400)
-│   │   └── [slug]/
-│   │       └── page.tsx        # Individual sermon (SSG + generateStaticParams)
+│   ├── testimonies/
+│   │   ├── page.tsx            # Testimony list (dynamic, 12/page, paginated)
+│   │   ├── [slug]/
+│   │   │   └── page.tsx        # Individual testimony (revalidate: 60)
+│   │   └── submit/
+│   │       ├── page.tsx        # SSG shell
+│   │       └── TestimonySubmitForm.tsx  # "use client" form with image upload
 │   ├── events/
 │   │   └── page.tsx            # SSR (dynamic: force-dynamic)
 │   ├── give/
-│   │   └── page.tsx            # SSG (revalidate: false)
+│   │   └── page.tsx            # ISR (revalidate: 60)
 │   ├── contact/
 │   │   ├── page.tsx            # SSG shell
 │   │   └── ContactForm.tsx     # "use client" form component
@@ -106,7 +110,17 @@ libertylifeperth/
 │   │       └── page.tsx        # Embedded Sanity Studio ("use client")
 │   └── api/
 │       ├── contact/
-│       │   └── route.ts        # POST → Nodemailer (Gmail SMTP)
+│       │   └── route.ts        # POST → Nodemailer (Gmail SMTP). Accepts type="prayer" for subject line
+│       ├── prayer/
+│       │   ├── route.ts        # POST → 3-stage Claude Haiku pipeline + emails
+│       │   ├── prompts.ts      # Stage 1/2/3 system prompts
+│       │   ├── fallback.ts     # Hardcoded fallback prayer response
+│       │   └── types.ts        # TypeScript types for the pipeline
+│       ├── testimonies/
+│       │   ├── submit/
+│       │   │   └── route.ts    # POST → LLM moderation + Sanity write + team email
+│       │   └── approve/
+│       │       └── route.ts    # GET → patch testimony status to published + revalidate
 │       ├── events/
 │       │   └── route.ts        # GET → Planning Center proxy (revalidate 3600)
 │       └── revalidate/
@@ -119,22 +133,21 @@ libertylifeperth/
 │   │   ├── Hero.tsx            # Full-height hero, circle motifs, CTAs
 │   │   ├── ServiceBar.tsx      # Sunday time / location / YouTube live strip
 │   │   ├── WhatToExpect.tsx    # 4-card grid (Worship, Message, Kids, Community)
-│   │   ├── LatestSermon.tsx    # YouTube embed + sermon metadata
 │   │   ├── UpcomingEvents.tsx  # List of upcoming Planning Center events
 │   │   └── GiveCta.tsx         # Dark section with give button
-│   ├── sermons/
-│   │   ├── SermonCard.tsx      # Card with YouTube thumbnail, play overlay
-│   │   ├── SermonGrid.tsx      # 3-column responsive grid
-│   │   └── SeriesFilter.tsx    # Filter tabs ("use client", uses useSearchParams)
+│   ├── testimonies/
+│   │   └── TestimonyCard.tsx   # Card with image, title, truncated body, Read more link
+│   ├── prayer/
+│   │   └── VerseCard.tsx       # Bible verse card with BibleGateway link
 │   ├── events/
 │   │   └── EventItem.tsx       # Event article with date badge, location, register link
 │   └── ui/
 │       ├── Button.tsx               # primary / outline / ghost variants, Link or button
-│       ├── PrayerRequestButton.tsx  # "use client" button that opens prayer request modal via portal
+│       ├── PrayerRequestButton.tsx  # "use client" button + modal (3-stage AI pipeline)
 │       └── SectionHeader.tsx        # eyebrow + title + subtitle pattern
 ├── lib/
 │   ├── sanity/
-│   │   ├── client.ts           # Sanity client (falls back to "placeholder" projectId at build)
+│   │   ├── client.ts           # sanityClient (read) + sanityWriteClient (@sanity/client, not next-sanity)
 │   │   ├── queries.ts          # All GROQ queries — keep centralised here
 │   │   └── image.ts            # urlFor() using createImageUrlBuilder (named export)
 │   └── planningcenter/
@@ -142,8 +155,9 @@ libertylifeperth/
 │       └── types.ts            # PCEvent, PCEventsResponse TypeScript types
 ├── sanity/
 │   ├── schemaTypes/
-│   │   ├── sermon.ts
+│   │   ├── sermon.ts           # Kept in schema (not used in nav/pages) — easy to restore
 │   │   ├── sermonSeries.ts
+│   │   ├── testimony.ts        # NEW — public testimonies with status workflow
 │   │   ├── staff.ts
 │   │   ├── page.ts
 │   │   ├── siteSettings.ts
@@ -151,7 +165,7 @@ libertylifeperth/
 │   │   └── index.ts            # Exports schemaTypes array
 │   └── sanity.config.ts        # Sanity Studio config (structure + vision plugins)
 ├── public/
-│   └── logo-white.png
+│   └── logo-no-bg.png
 ├── amplify.yml                 # AWS Amplify build config
 ├── .env.local.example          # Copy to .env.local and fill in real values
 ├── next.config.ts              # images.remotePatterns for cdn.sanity.io
@@ -169,7 +183,8 @@ Copy `.env.local.example` to `.env.local` and fill in real values before running
 # Sanity
 NEXT_PUBLIC_SANITY_PROJECT_ID=       # Get from sanity.io/manage
 NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_TOKEN=                    # Read token — create in Sanity project settings
+SANITY_API_TOKEN=                    # Read (Viewer) token — create in Sanity project settings
+SANITY_WRITE_TOKEN=                  # Editor token — create in Sanity project settings → API → Tokens
 SANITY_WEBHOOK_SECRET=               # Any random string — set the same in Sanity webhook config
 
 # Planning Center
@@ -181,6 +196,12 @@ CONTACT_EMAIL_FROM=                  # Gmail address used to send (e.g. webadmin
 CONTACT_EMAIL_APP_PASSWORD=          # Gmail App Password (Google Account → Security → App Passwords)
 CONTACT_EMAIL_TO=                    # Email address(es) that receive messages — comma-separate for multiple
 
+# Anthropic (prayer request pipeline + testimony moderation)
+ANTHROPIC_API_KEY=                   # From console.anthropic.com
+
+# Testimonies
+TESTIMONY_APPROVE_SECRET=            # Any random string — secures the approve endpoint
+
 # App
 NEXT_PUBLIC_SITE_URL=https://libertylifeperth.org
 ```
@@ -188,7 +209,7 @@ NEXT_PUBLIC_SITE_URL=https://libertylifeperth.org
 > **Build note:** The app builds successfully without real env vars (Sanity falls back to
 > `"placeholder"` projectId). Pages that depend on Sanity will show empty/fallback states until real credentials are set.
 
-> **Amplify runtime env vars:** Amplify SSR Lambda functions do not have access to `process.env` from the console at runtime. The `amplify.yml` build step pipes env vars into `.env.production` before `npm run build` so Next.js API routes can read them. Always add new server-side env vars to the grep pattern in `amplify.yml`.
+> **Amplify runtime env vars:** Amplify SSR Lambda functions do not have access to `process.env` from the console at runtime. The `amplify.yml` build step pipes env vars into `.env.production` before `npm run build` so Next.js API routes can read them. Always add new server-side env vars to the grep pattern in `amplify.yml`. Current pattern: `CONTACT_EMAIL|SANITY|PLANNING_CENTER|NEXT_PUBLIC|ANTHROPIC|TESTIMONY`
 
 ---
 
@@ -196,17 +217,68 @@ NEXT_PUBLIC_SITE_URL=https://libertylifeperth.org
 
 | Type | Who edits | Key fields |
 |---|---|---|
-| `sermon` | Pastor / admin | title, slug, speaker (→staff), date, series (→sermonSeries), scripture, youtubeUrl, audioUrl, notes, tags |
+| `testimony` | Public (pending→review) / Admin (direct) | title, slug, authorName, authorEmail, body, image, youtubeUrl, status, source, submittedAt |
+| `sermon` | Pastor / admin | title, slug, speaker (→staff), date, series (→sermonSeries), scripture, youtubeUrl, audioUrl, notes, tags — **schema kept, no pages** |
 | `sermonSeries` | Admin | title, slug, artwork, description, startDate |
 | `staff` | Admin | name, role, photo, bio, order |
 | `siteSettings` | Admin | siteName, tagline, address, serviceTime, contactEmail, socialLinks |
 | `page` | Admin | title, slug, body (rich text) — used for About story, beliefs, Give copy |
 | `announcement` | Pastor / admin | title, body, publishedAt, expiresAt |
 
+**Testimony status workflow:**
+- `pending` — submitted by public, awaiting review
+- `published` — visible on `/testimonies`
+- `rejected` — hidden, stays in Sanity for reference
+
 **Page slugs expected by queries:**
 - `about` — About page story (`getAboutPage`)
 - `beliefs` — What we believe section (`getAboutPage`)
 - `give` — Give page copy (`getGivePage`)
+
+---
+
+## Testimonies feature
+
+### Public submission flow
+1. Visitor fills in form at `/testimonies/submit` (name, email optional, title, body, image optional, YouTube URL optional)
+2. POST to `/api/testimonies/submit` — Claude Haiku screens for spam/abuse/profanity
+3. If rejected by LLM: gentle error message shown, no document created
+4. If approved by LLM: document created in Sanity with `status: "pending"`, team email sent
+5. Team email contains a **"Review in Studio"** button linking to `/studio` — editor reviews image and content, then sets status to `published` manually
+
+### Approve via API (alternative path)
+`GET /api/testimonies/approve?id=DOCUMENT_ID&secret=TESTIMONY_APPROVE_SECRET`  
+Patches the document to `status: "published"` and calls `revalidateTag("testimony", { expire: 0 })`.  
+Returns a branded HTML page (not JSON) since it's opened in a browser.
+
+### Image upload gotcha
+`sanityWriteClient.assets.upload()` from `@sanity/client` fails with 403 inside Next.js API routes even with a valid Editor token. Use raw `fetch()` to the Sanity assets endpoint instead:
+```ts
+await fetch(`https://${projectId}.api.sanity.io/v2024-01-01/assets/images/${dataset}?filename=...`, {
+  method: "POST",
+  headers: { Authorization: `Bearer ${process.env.SANITY_WRITE_TOKEN}`, "Content-Type": imageFile.type },
+  body: buffer,
+})
+```
+
+### Write client
+`sanityWriteClient` in `lib/sanity/client.ts` uses `createClient` from `@sanity/client` directly (not `next-sanity`). The `next-sanity` wrapper adds stega/perspective layers that interfere with mutations and asset uploads.
+
+---
+
+## Prayer request feature
+
+Three-stage Claude Haiku pipeline on every submission:
+1. **Stage 1** — validates input (screens spam/abuse/gibberish/obvious non-requests)
+2. **Stage 2** — generates a pastoral response with 2–3 verified Bible verses (NIV)
+3. **Stage 3** — audits verse existence and relevance; retries Stage 2 once if it fails
+4. Falls back to hardcoded response if both Stage 2+3 attempts fail
+
+Sends two emails in parallel:
+- Church team notification (to `CONTACT_EMAIL_TO`)
+- Confirmation email to submitter with branded HTML (verses, closing line, service invite) — only if email provided
+
+Cost: ~$0.002/request at Haiku pricing (~$0.21/month at 100 requests).
 
 ---
 
@@ -244,15 +316,16 @@ export async function pcFetch(path: string, revalidate = 3600) {
 |---|---|---|
 | Home | ISR | 60 min (`revalidate = 3600`) |
 | About | SSG | On Sanity webhook (`revalidate: false`) |
-| Sermons (list) | ISR | 24 h (`revalidate = 86400`) |
-| Sermons (detail) | SSG | `generateStaticParams` — on webhook |
+| Testimonies (list) | Dynamic | Every request (`dynamic = "force-dynamic"`) |
+| Testimonies (detail) | ISR | 60 s (`revalidate = 60`) |
+| Testimonies (submit) | SSG | Static shell, form is client-side |
 | Events | SSR | Every request (`dynamic = "force-dynamic"`) |
-| Give | SSG | On Sanity webhook |
+| Give | ISR | 60 s (`revalidate = 60`) |
 | Contact | SSG | Static shell, form is client-side |
 
 **Sanity webhook → cache invalidation:**  
 `POST /api/revalidate?secret=SANITY_WEBHOOK_SECRET`  
-Body: `{ "_type": "sermon" }` (or any schema type name)  
+Body: `{ "_type": "testimony" }` (or any schema type name)  
 Calls `revalidateTag(tag, { expire: 0 })` — Next.js 16 requires the second argument.
 
 ---
@@ -263,10 +336,11 @@ Calls `revalidateTag(tag, { expire: 0 })` — Next.js 16 requires the second arg
 - All Sanity queries go through `lib/sanity/queries.ts` — keep GROQ centralised
 - No `any` types — use proper TypeScript throughout
 - All images go through `urlFor()` from `lib/sanity/image.ts` or `next/image`
+- Testimony images use plain `<img>` tags (not `next/image`) on the detail page to avoid forced cropping — `urlFor` should not have `.height()` set, only `.width()`
 - Mobile-first Tailwind — base styles are mobile, use `md:` and `lg:` for larger screens
 - Components are named with PascalCase, files match component names
 - Route Handlers live in `app/api/` — all external API calls are server-side only
-- `"use client"` only on components that need browser APIs (Nav hamburger, SeriesFilter, ContactForm, PrayerRequestButton, Studio)
+- `"use client"` only on components that need browser APIs (Nav hamburger, ContactForm, PrayerRequestButton, TestimonySubmitForm, Studio)
 
 ---
 
@@ -301,6 +375,12 @@ These were changed from fully static to ISR with a 60-second revalidation as a s
 **Amplify password protection blocks the Sanity Studio iframe on sanity.io:**  
 When password protection is enabled, sanity.io cannot embed the studio in an iframe. Content editors should use `https://libertylifeperth.org/studio` directly. The direct URL works fine with or without password protection.
 
+**`sanityWriteClient.assets.upload()` fails with 403 in Next.js API routes:**  
+Use raw `fetch()` to the Sanity assets endpoint directly. See Testimonies feature section above.
+
+**Hydration mismatch `cz-shortcut-listen="true"`:**  
+Injected by the ColorZilla browser extension. Not a code bug — safe to ignore in dev.
+
 ---
 
 ## GitHub
@@ -321,6 +401,7 @@ When password protection is enabled, sanity.io cannot embed the studio in an ifr
 **CORS origins:** `http://localhost:3000`, `https://libertylifeperth.org` — both with **Allow credentials enabled**  
 **Webhook:** `POST https://libertylifeperth.org/api/revalidate?secret=llp-webhook-2026` ✅ configured  
 **Studio hosts:** `https://libertylifeperth.org/studio` registered  
+**Tokens:** `SANITY_API_TOKEN` = Viewer (read-only) · `SANITY_WRITE_TOKEN` = Editor (`liberty-life-website-write`)
 
 > **Gotcha:** CORS origins for the studio MUST have "Allow credentials" enabled. Without it the studio throws a CorsOriginError and shows "Register this studio" instead of the editor.
 
@@ -331,11 +412,17 @@ They access the studio at `https://libertylifeperth.org/studio` directly (not vi
 
 ## Email setup
 
-Contact form currently uses **Nodemailer + Gmail SMTP** (`webadmin@libertylifeperth.org`).  
-To switch senders (e.g. when Google Workspace Nonprofits is approved), just update three env vars — no code changes needed:
+All transactional email uses **Nodemailer + Gmail SMTP** (`webadmin@libertylifeperth.org`).  
+To switch senders (e.g. when Google Workspace Nonprofits is approved), update env vars — no code changes needed:
 - `CONTACT_EMAIL_FROM` — sending address
 - `CONTACT_EMAIL_APP_PASSWORD` — Gmail App Password for that account
 - `CONTACT_EMAIL_TO` — receiving address(es), comma-separated for multiple
+
+**Email types:**
+- Contact form → subject: `New message from [Name] via libertylifeperth.org`
+- Prayer request → subject: `New prayer request from [Name]`
+- Prayer confirmation → subject: `We're praying for you — Liberty Life Perth` (HTML, branded)
+- Testimony notification → subject: `New testimony pending review — Liberty Life Perth` (HTML, branded, includes "Review in Studio" button)
 
 **Google Workspace for Nonprofits** — applied June 2026. Entity: Liberty Christian Centre Inc (ABN 81 763 203 730). Qualifies via ACNC registration + ATO income tax exempt status. DGR status not required.
 
@@ -372,12 +459,16 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), just upda
 - [x] Amplify runtime env var fix — vars piped into `.env.production` via `amplify.yml`
 - [x] New logo (`logo-no-bg.png`) in Nav and Footer
 - [x] "Prayer request" modal (portal-based) replacing "Plan a visit" button in Nav + Hero
+- [x] Prayer request: 3-stage Claude Haiku pipeline with fallback + branded confirmation email
 - [x] Give page: removed "Give online" card, added real bank transfer details (Liberty Life Centre, BSB 016-268, Acc 4956 4301 5)
 - [x] All YouTube links updated to `@libertylifeperth5011`
 - [x] "Website under renovation" banner added to all pages via layout
 - [x] Applied for Google Workspace for Nonprofits (June 2026)
+- [x] Sermons removed — replaced with Testimonies feature
+- [x] Testimonies: public submission, LLM moderation, image upload, paginated list (12/page), detail page, team email with Studio review link
 
 ### Next session
+- [ ] Add `ANTHROPIC_API_KEY`, `SANITY_WRITE_TOKEN`, `TESTIMONY_APPROVE_SECRET` to Amplify env vars
 - [ ] Activate Google Workspace once approved — set up church email accounts
 - [ ] Update contact form env vars to use new Workspace email accounts
 - [ ] Update Give page Planning Center Giving URL
@@ -386,4 +477,4 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), just upda
 
 ---
 
-*Last updated: June 2026 — contact form live, prayer request modal, new logo, bank transfer details added*
+*Last updated: June 2026 — testimonies feature live, prayer request AI pipeline, sermons removed*
