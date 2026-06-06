@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     page: ["page"],
     siteSettings: ["siteSettings"],
     announcement: ["announcement"],
+    testimony: ["testimony"],
   };
 
   const tags = type ? (tagMap[type] ?? ["page"]) : Object.values(tagMap).flat();

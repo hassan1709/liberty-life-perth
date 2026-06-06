@@ -7,7 +7,7 @@ import PrayerRequestButton from "@/components/ui/PrayerRequestButton";
 
 const links = [
   { href: "/about", label: "About" },
-  { href: "/sermons", label: "Sermons" },
+  { href: "/testimonies", label: "Testimonies" },
   { href: "/events", label: "Events" },
   { href: "/give", label: "Give" },
   { href: "/contact", label: "Contact" },
@@ -26,6 +26,8 @@ export default function Nav() {
               alt="Liberty Life Perth"
               width={1920}
               height={1080}
+              loading="eager"
+              priority
               className="object-contain h-28 w-auto"
             />
           </Link>

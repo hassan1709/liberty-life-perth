@@ -1,5 +1,46 @@
 import { sanityClient } from "./client";
 
+export type TestimonyDocument = {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  authorName: string;
+  body: string;
+  image?: unknown;
+  youtubeUrl?: string;
+  submittedAt: string;
+};
+
+export async function getTestimonies(page: number, perPage = 10): Promise<TestimonyDocument[]> {
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  return sanityClient.fetch(
+    `*[_type == "testimony" && status == "published"] | order(submittedAt desc) [${start}...${end}] {
+      _id, title, slug, authorName, body, image, youtubeUrl, submittedAt
+    }`,
+    {},
+    { next: { tags: ["testimony"] } }
+  );
+}
+
+export async function getTestimonyCount() {
+  return sanityClient.fetch(
+    `count(*[_type == "testimony" && status == "published"])`,
+    {},
+    { next: { tags: ["testimony"] } }
+  );
+}
+
+export async function getTestimonyBySlug(slug: string) {
+  return sanityClient.fetch(
+    `*[_type == "testimony" && slug.current == $slug && status == "published"][0] {
+      _id, title, slug, authorName, body, image, youtubeUrl, submittedAt
+    }`,
+    { slug },
+    { next: { tags: ["testimony"] } }
+  );
+}
+
 export async function getLatestSermon() {
   return sanityClient.fetch(
     `*[_type == "sermon"] | order(date desc) [0] {
