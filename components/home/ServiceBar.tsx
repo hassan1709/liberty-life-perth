@@ -1,28 +1,49 @@
 import Link from "next/link";
+import type { SiteSettings } from "@/lib/sanity/queries";
 
-export default function ServiceBar() {
+const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Unit+1%2F16+Roxby+Ln%2C+Willetton+WA+6155";
+
+type Props = { settings?: SiteSettings };
+
+export default function ServiceBar({ settings }: Props) {
+  const serviceTime = settings?.serviceTime ?? "Sundays at 10:00 AM";
+  const address = settings?.address ?? "Perth, Western Australia";
+  const youtubeUrl = settings?.socialLinks?.youtubeStream ?? settings?.socialLinks?.youtube ?? "https://www.youtube.com/@libertylifeperth5011";
+
   return (
     <div className="bg-navy-dark border-y border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 py-4 text-sm">
+
+          {/* Service times */}
           <div className="flex items-center gap-2 text-white/70">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-rosegold flex-shrink-0">
               <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" />
               <path d="M8 4.5v4l2.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            <span>Sundays at <strong className="text-white">10:00 AM</strong></span>
+            <span><strong className="text-white">{serviceTime}</strong></span>
           </div>
           <div className="hidden sm:block h-4 w-px bg-white/20" />
-          <div className="flex items-center gap-2 text-white/70">
+
+          {/* Location — links to Google Maps */}
+          <a
+            href={MAPS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
+          >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-rosegold flex-shrink-0">
               <path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 8.5 4.5 8.5S12.5 9.75 12.5 6c0-2.485-2.015-4.5-4.5-4.5z" stroke="currentColor" strokeWidth="1.5" />
               <circle cx="8" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5" />
             </svg>
-            <span>Perth, <strong className="text-white">Western Australia</strong></span>
-          </div>
+            <strong className="text-white">{address}</strong>
+          </a>
+
           <div className="hidden sm:block h-4 w-px bg-white/20" />
+
+          {/* Watch live */}
           <Link
-            href="https://www.youtube.com/@libertylifeperth5011"
+            href={youtubeUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-rosegold hover:text-rosegold-light transition-colors font-medium"

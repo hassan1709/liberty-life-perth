@@ -1,6 +1,7 @@
-import SectionHeader from "@/components/ui/SectionHeader";
 import EventItem from "@/components/events/EventItem";
+import PageBanner from "@/components/ui/PageBanner";
 import { pcFetch } from "@/lib/planningcenter/client";
+import { getSiteSettings } from "@/lib/sanity/queries";
 import type { PCEvent, PCEventsResponse } from "@/lib/planningcenter/types";
 
 export const dynamic = "force-dynamic";
@@ -18,32 +19,27 @@ async function getEvents(): Promise<PCEvent[]> {
 }
 
 export default async function EventsPage() {
-  const events = await getEvents();
+  const [events, settings] = await Promise.all([getEvents(), getSiteSettings()]);
 
   return (
-    <div className="pt-24 pb-20 min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <SectionHeader
-            eyebrow="Calendar"
-            title="Upcoming events"
-            subtitle="Stay connected with what's happening at Liberty Life Perth."
-          />
+    <>
+      <PageBanner eyebrow="Calendar" title="Upcoming Events" image={settings?.eventsImage ?? "/events.png"} />
+      <section className="py-16 md:py-24 bg-navy min-h-[40vh]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {events.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-white/50 text-lg">Nothing on at the moment.</p>
+              <p className="text-white/30 text-sm mt-2">Check back soon!</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {events.map((event) => (
+                <EventItem key={event.id} event={event} />
+              ))}
+            </div>
+          )}
         </div>
-
-        {events.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-white/50 text-lg">No upcoming events at the moment.</p>
-            <p className="text-white/30 text-sm mt-2">Check back soon!</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {events.map((event) => (
-              <EventItem key={event.id} event={event} />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

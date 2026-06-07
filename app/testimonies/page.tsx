@@ -1,7 +1,8 @@
-import { getTestimonies, getTestimonyCount, type TestimonyDocument } from "@/lib/sanity/queries";
+import { getTestimonies, getTestimonyCount, getSiteSettings, type TestimonyDocument } from "@/lib/sanity/queries";
 import TestimonyCard from "@/components/testimonies/TestimonyCard";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Button from "@/components/ui/Button";
+import PageBanner from "@/components/ui/PageBanner";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -16,33 +17,17 @@ export default async function TestimoniesPage({ searchParams }: Props) {
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
 
-  const [testimonies, total] = await Promise.all([
+  const [testimonies, total, settings] = await Promise.all([
     getTestimonies(page, PER_PAGE),
     getTestimonyCount(),
+    getSiteSettings(),
   ]);
 
   const totalPages = Math.ceil(total / PER_PAGE);
 
   return (
     <>
-      {/* Hero */}
-      <div className="relative h-64 md:h-96 bg-navy-dark overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="absolute w-[700px] h-[700px] rounded-full border border-white/5" />
-          <div className="absolute w-[450px] h-[450px] rounded-full border border-white/5" />
-          <div className="absolute w-[220px] h-[220px] rounded-full border border-rosegold/10" />
-        </div>
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-px w-8 bg-rosegold" />
-            <span className="text-xs font-medium uppercase tracking-widest text-rosegold">
-              Liberty Life Perth
-            </span>
-            <div className="h-px w-8 bg-rosegold" />
-          </div>
-          <h1 className="font-display text-5xl md:text-7xl text-white">Testimonies</h1>
-        </div>
-      </div>
+      <PageBanner title="Testimonies" image={settings?.testimoniesImage ?? "/testimonies.png"} />
 
       {/* Intro + grid */}
       <section className="py-16 md:py-24 bg-navy">

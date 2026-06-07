@@ -29,7 +29,7 @@
 | Email (transactional) | Nodemailer + Gmail SMTP | Contact form + prayer requests + testimony notifications via `webadmin@libertylifeperth.org` |
 | Email (mailboxes) | Google Workspace (Nonprofits) | Applied for free nonprofit plan — pending approval. Legal entity: Liberty Christian Centre Inc (ABN 81 763 203 730) |
 | AI | Anthropic Claude Haiku | Prayer request pipeline (3-stage) + testimony moderation |
-| Video | YouTube embeds | No self-hosted video |
+| Video | YouTube embeds + Sanity CDN | Hero background video hosted as Sanity file asset |
 | Analytics | None initially | Add later if needed |
 
 **Runtime:** Node.js v24.3.0  
@@ -91,6 +91,8 @@ libertylifeperth/
 │   ├── page.tsx                # Home (ISR, revalidate 3600s)
 │   ├── about/
 │   │   └── page.tsx            # SSG (revalidate: false)
+│   ├── announcements/
+│   │   └── page.tsx            # Dynamic — active announcements from Sanity (auto-expires)
 │   ├── testimonies/
 │   │   ├── page.tsx            # Testimony list (dynamic, 12/page, paginated)
 │   │   ├── [slug]/
@@ -99,11 +101,11 @@ libertylifeperth/
 │   │       ├── page.tsx        # SSG shell
 │   │       └── TestimonySubmitForm.tsx  # "use client" form with image upload
 │   ├── events/
-│   │   └── page.tsx            # SSR (dynamic: force-dynamic)
+│   │   └── page.tsx            # SSR (dynamic: force-dynamic) — Planning Center
 │   ├── give/
 │   │   └── page.tsx            # ISR (revalidate: 60)
 │   ├── contact/
-│   │   ├── page.tsx            # SSG shell
+│   │   ├── page.tsx            # ISR (revalidate: 60) — pulls from siteSettings
 │   │   └── ContactForm.tsx     # "use client" form component
 │   ├── studio/
 │   │   └── [[...tool]]/
@@ -130,11 +132,11 @@ libertylifeperth/
 │   │   ├── Nav.tsx             # Fixed header, mobile hamburger ("use client")
 │   │   └── Footer.tsx          # 3-column footer, social links
 │   ├── home/
-│   │   ├── Hero.tsx            # Full-height hero, circle motifs, CTAs
-│   │   ├── ServiceBar.tsx      # Sunday time / location / YouTube live strip
-│   │   ├── WhatToExpect.tsx    # 4-card grid (Worship, Message, Kids, Community)
+│   │   ├── Hero.tsx            # Video banner hero — fetches video URLs from siteSettings (async server component)
+│   │   ├── ServiceBar.tsx      # Service times / location / YouTube strip — from siteSettings
+│   │   ├── WhatToExpect.tsx    # Tagline + social icons + 5-card grid — from siteSettings
 │   │   ├── UpcomingEvents.tsx  # List of upcoming Planning Center events
-│   │   └── GiveCta.tsx         # Dark section with give button
+│   │   └── GiveCta.tsx         # Dark section with give button — from siteSettings
 │   ├── testimonies/
 │   │   └── TestimonyCard.tsx   # Card with image, title, truncated body, Read more link
 │   ├── prayer/
@@ -143,6 +145,7 @@ libertylifeperth/
 │   │   └── EventItem.tsx       # Event article with date badge, location, register link
 │   └── ui/
 │       ├── Button.tsx               # primary / outline / ghost variants, Link or button
+│       ├── PageBanner.tsx           # Reusable page banner — eyebrow, title, optional background image + overlay
 │       ├── PrayerRequestButton.tsx  # "use client" button + modal (3-stage AI pipeline)
 │       └── SectionHeader.tsx        # eyebrow + title + subtitle pattern
 ├── lib/
@@ -165,7 +168,11 @@ libertylifeperth/
 │   │   └── index.ts            # Exports schemaTypes array
 │   └── sanity.config.ts        # Sanity Studio config (structure + vision plugins)
 ├── public/
-│   └── logo-no-bg.png
+│   ├── logo-no-bg.png
+│   ├── testimonies.png         # Fallback banner image (overridable via siteSettings)
+│   ├── announcements.png
+│   ├── events.png
+│   └── give.jpg
 ├── amplify.yml                 # AWS Amplify build config
 ├── .env.local.example          # Copy to .env.local and fill in real values
 ├── next.config.ts              # images.remotePatterns for cdn.sanity.io
@@ -218,12 +225,12 @@ NEXT_PUBLIC_SITE_URL=https://libertylifeperth.org
 | Type | Who edits | Key fields |
 |---|---|---|
 | `testimony` | Public (pending→review) / Admin (direct) | title, slug, authorName, authorEmail, body, image, youtubeUrl, status, source, submittedAt |
-| `sermon` | Pastor / admin | title, slug, speaker (→staff), date, series (→sermonSeries), scripture, youtubeUrl, audioUrl, notes, tags — **schema kept, no pages** |
-| `sermonSeries` | Admin | title, slug, artwork, description, startDate |
 | `staff` | Admin | name, role, photo, bio, order |
-| `siteSettings` | Admin | siteName, tagline, address, serviceTime, contactEmail, socialLinks |
+| `siteSettings` | Admin | siteName, tagline, address, serviceTimeLabel, serviceTime, serviceTime2Label, serviceTime2, contactEmail, socialLinks, heroVideoMp4, heroVideoWebm, testimoniesImage, announcementsImage, eventsImage, giveImage, bankDetails, whatToExpect, giveCta |
 | `page` | Admin | title, slug, body (rich text) — used for About story, beliefs, Give copy |
 | `announcement` | Pastor / admin | title, body, publishedAt, expiresAt |
+
+> **Sermons removed:** `sermon` and `sermonSeries` schema files still exist on disk but are not registered in `sanity/schemaTypes/index.ts` and do not appear in Studio. Keep the files for easy restoration if needed.
 
 **Testimony status workflow:**
 - `pending` — submitted by public, awaiting review
@@ -316,12 +323,13 @@ export async function pcFetch(path: string, revalidate = 3600) {
 |---|---|---|
 | Home | ISR | 60 min (`revalidate = 3600`) |
 | About | SSG | On Sanity webhook (`revalidate: false`) |
+| Announcements | Dynamic | Every request (`dynamic = "force-dynamic"`) |
 | Testimonies (list) | Dynamic | Every request (`dynamic = "force-dynamic"`) |
 | Testimonies (detail) | ISR | 60 s (`revalidate = 60`) |
 | Testimonies (submit) | SSG | Static shell, form is client-side |
 | Events | SSR | Every request (`dynamic = "force-dynamic"`) |
 | Give | ISR | 60 s (`revalidate = 60`) |
-| Contact | SSG | Static shell, form is client-side |
+| Contact | ISR | 60 s (`revalidate = 60`) — pulls from siteSettings |
 
 **Sanity webhook → cache invalidation:**  
 `POST /api/revalidate?secret=SANITY_WEBHOOK_SECRET`  
@@ -380,6 +388,12 @@ Use raw `fetch()` to the Sanity assets endpoint directly. See Testimonies featur
 
 **Hydration mismatch `cz-shortcut-listen="true"`:**  
 Injected by the ColorZilla browser extension. Not a code bug — safe to ignore in dev.
+
+**Hero video upload — use raw fetch for file assets:**  
+Same pattern as image uploads — `sanityWriteClient.assets.upload()` fails with 403 for file assets too. Upload via raw fetch to `https://${projectId}.api.sanity.io/v2024-01-01/assets/files/${dataset}`. The returned `_id` (e.g. `file-abc123-mp4`) can then be used as a reference in the siteSettings document.
+
+**Hero video compression:**  
+Source video compressed with `ffmpeg` before upload: `libx264 -crf 28` for MP4, `libvpx-vp9 -crf 35` for WebM. Both ~2.5 MB. Videos are stored as Sanity file assets and referenced in `siteSettings.heroVideoMp4` / `heroVideoWebm`.
 
 ---
 
@@ -464,8 +478,19 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] All YouTube links updated to `@libertylifeperth5011`
 - [x] "Website under renovation" banner added to all pages via layout
 - [x] Applied for Google Workspace for Nonprofits (June 2026)
-- [x] Sermons removed — replaced with Testimonies feature
+- [x] Sermons removed from Studio and nav (schema files kept on disk, not registered)
 - [x] Testimonies: public submission, LLM moderation, image upload, paginated list (12/page), detail page, team email with Studio review link
+- [x] Announcements page — `/announcements`, auto-expires by date, managed in Studio
+- [x] Hero video banner — compressed MP4 + WebM uploaded to Sanity CDN, set via siteSettings
+- [x] PageBanner component — reusable banner with optional background image + overlay, used on Testimonies, Announcements, Events, Give
+- [x] Banner images (testimonies, announcements, events, give) editable via Studio siteSettings
+- [x] siteSettings fully wired up — tagline, service times + labels, address, social links, bank details, whatToExpect cards, giveCta, banner images
+- [x] Footer async — pulls address, service time, social links from siteSettings
+- [x] Contact page ISR — pulls service times (with labels), address, social links from siteSettings
+- [x] Social icons (Facebook, Instagram, YouTube) in home page WhatToExpect section and footer
+- [x] Location links to Google Maps in ServiceBar and Footer
+- [x] Home nav link added
+- [x] Saturday Spanish service card added to WhatToExpect (fortnightly, shown first)
 
 ### Next session
 - [ ] Add `ANTHROPIC_API_KEY`, `SANITY_WRITE_TOKEN`, `TESTIMONY_APPROVE_SECRET` to Amplify env vars
@@ -477,4 +502,4 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 
 ---
 
-*Last updated: June 2026 — testimonies feature live, prayer request AI pipeline, sermons removed*
+*Last updated: June 2026 — video hero, announcements page, full Studio CMS wiring, PageBanner component*

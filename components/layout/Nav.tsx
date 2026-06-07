@@ -6,9 +6,10 @@ import Image from "next/image";
 import PrayerRequestButton from "@/components/ui/PrayerRequestButton";
 
 const links = [
-  { href: "https://libertylifeperth.org/", label: "Home" },
+  { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/testimonies", label: "Testimonies" },
+  { href: "/announcements", label: "Announcements" },
   { href: "/events", label: "Events" },
   { href: "/give", label: "Give" },
   { href: "/contact", label: "Contact" },

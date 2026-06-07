@@ -90,6 +90,24 @@ export async function getAllSermonSeries() {
   );
 }
 
+export type AnnouncementDocument = {
+  _id: string;
+  title: string;
+  body?: unknown[];
+  publishedAt: string;
+  expiresAt?: string;
+};
+
+export async function getAnnouncements(): Promise<AnnouncementDocument[]> {
+  return sanityClient.fetch(
+    `*[_type == "announcement" && publishedAt <= now() && (expiresAt == null || expiresAt > now())] | order(publishedAt desc) {
+      _id, title, body, publishedAt, expiresAt
+    }`,
+    {},
+    { next: { tags: ["announcement"] } }
+  );
+}
+
 export async function getAboutPage() {
   return sanityClient.fetch(
     `{
@@ -110,10 +128,64 @@ export async function getGivePage() {
   );
 }
 
-export async function getSiteSettings() {
+export type WhatToExpectCard = {
+  icon?: string;
+  title?: string;
+  description?: string;
+};
+
+export type SiteSettings = {
+  siteName?: string;
+  tagline?: string;
+  address?: string;
+  serviceTimeLabel?: string;
+  serviceTime?: string;
+  serviceTime2Label?: string;
+  serviceTime2?: string;
+  contactEmail?: string;
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+    youtubeStream?: string;
+  };
+  heroVideoMp4?: string;
+  heroVideoWebm?: string;
+  testimoniesImage?: string;
+  announcementsImage?: string;
+  eventsImage?: string;
+  giveImage?: string;
+  bankDetails?: {
+    accountName?: string;
+    bsb?: string;
+    accountNumber?: string;
+  };
+  whatToExpect?: {
+    eyebrow?: string;
+    title?: string;
+    subtitle?: string;
+    cards?: WhatToExpectCard[];
+  };
+  giveCta?: {
+    eyebrow?: string;
+    title?: string;
+    body?: string;
+  };
+};
+
+export async function getSiteSettings(): Promise<SiteSettings> {
   return sanityClient.fetch(
     `*[_type == "siteSettings"][0] {
-      siteName, tagline, address, serviceTime, contactEmail, socialLinks
+      siteName, tagline, address, serviceTimeLabel, serviceTime, serviceTime2Label, serviceTime2, contactEmail, socialLinks,
+      "heroVideoMp4": heroVideoMp4.asset->url,
+      "heroVideoWebm": heroVideoWebm.asset->url,
+      "testimoniesImage": testimoniesImage.asset->url,
+      "announcementsImage": announcementsImage.asset->url,
+      "eventsImage": eventsImage.asset->url,
+      "giveImage": giveImage.asset->url,
+      bankDetails,
+      whatToExpect,
+      giveCta
     }`,
     {},
     { next: { tags: ["siteSettings"] } }

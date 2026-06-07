@@ -4,6 +4,7 @@ import WhatToExpect from "@/components/home/WhatToExpect";
 import UpcomingEvents from "@/components/home/UpcomingEvents";
 import GiveCta from "@/components/home/GiveCta";
 import { pcFetch } from "@/lib/planningcenter/client";
+import { getSiteSettings } from "@/lib/sanity/queries";
 import type { PCEventsResponse } from "@/lib/planningcenter/types";
 
 export const revalidate = 3600;
@@ -21,15 +22,18 @@ async function getUpcomingEvents() {
 }
 
 export default async function HomePage() {
-  const events = await getUpcomingEvents();
+  const [events, settings] = await Promise.all([
+    getUpcomingEvents(),
+    getSiteSettings(),
+  ]);
 
   return (
     <>
       <Hero />
-      <ServiceBar />
-      <WhatToExpect />
+      <ServiceBar settings={settings} />
+      <WhatToExpect settings={settings} />
       {events.length > 0 && <UpcomingEvents events={events} />}
-      <GiveCta />
+      <GiveCta settings={settings} />
     </>
   );
 }

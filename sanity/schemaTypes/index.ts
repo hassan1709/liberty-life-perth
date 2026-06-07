@@ -1,9 +1,7 @@
 import { staff } from "./staff";
-import { sermonSeries } from "./sermonSeries";
-import { sermon } from "./sermon";
 import { siteSettings } from "./siteSettings";
 import { page } from "./page";
 import { announcement } from "./announcement";
 import { testimony } from "./testimony";
 
-export const schemaTypes = [staff, sermonSeries, sermon, siteSettings, page, announcement, testimony];
+export const schemaTypes = [staff, siteSettings, page, announcement, testimony];

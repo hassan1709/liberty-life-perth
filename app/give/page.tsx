@@ -1,33 +1,27 @@
 import { PortableText } from "@portabletext/react";
-import SectionHeader from "@/components/ui/SectionHeader";
-import { getGivePage } from "@/lib/sanity/queries";
+import PageBanner from "@/components/ui/PageBanner";
+import { getGivePage, getSiteSettings } from "@/lib/sanity/queries";
 
 export const revalidate = 60;
 
 export default async function GivePage() {
-  const page = await getGivePage().catch(() => null);
+  const [page, settings] = await Promise.all([
+    getGivePage().catch(() => null),
+    getSiteSettings(),
+  ]);
+
+  const bank = settings?.bankDetails;
+  const accountName = bank?.accountName ?? "Liberty Life Centre";
+  const bsb = bank?.bsb ?? "016-268";
+  const accountNumber = bank?.accountNumber ?? "4956 4301 5";
 
   return (
-    <div className="pt-24 pb-20 min-h-screen">
-      {/* Hero */}
-      <section className="py-16 md:py-24 border-b border-white/10 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="absolute top-1/2 right-0 translate-x-1/3 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-rosegold/10" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            eyebrow="Generosity"
-            title="Give"
-            subtitle="Your generosity enables us to reach people, build community, and serve our city."
-          />
-        </div>
-      </section>
+    <>
+      <PageBanner eyebrow="Generosity" title="Give" image={settings?.giveImage ?? "/give.jpg"} />
 
-      {/* Giving options */}
-      <section className="py-16 md:py-20">
+      <section className="py-16 md:py-24 bg-navy min-h-[40vh]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            {/* Bank transfer */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col gap-5">
               <div className="w-12 h-12 rounded-full bg-rosegold/20 flex items-center justify-center">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-rosegold">
@@ -44,22 +38,21 @@ export default async function GivePage() {
                 <div className="flex flex-col gap-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-white/50">Account name</span>
-                    <span className="text-white">Liberty Life Centre</span>
+                    <span className="text-white">{accountName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/50">BSB</span>
-                    <span className="text-white font-mono">016-268</span>
+                    <span className="text-white font-mono">{bsb}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/50">Account</span>
-                    <span className="text-white font-mono">4956 4301 5</span>
+                    <span className="text-white font-mono">{accountNumber}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Rich text from Sanity */}
           {page?.body && (
             <div className="prose prose-invert max-w-none [&_p]:text-white/70 [&_h2]:font-display [&_h2]:text-white">
               <PortableText value={page.body} />
@@ -67,6 +60,6 @@ export default async function GivePage() {
           )}
         </div>
       </section>
-    </div>
+    </>
   );
 }
