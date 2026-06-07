@@ -14,7 +14,13 @@ async function callHaiku<T>(systemPrompt: string, userMessage: string, maxTokens
     messages: [{ role: "user", content: userMessage }],
   })
   const text = response.content[0].type === "text" ? response.content[0].text : ""
-  return JSON.parse(text.replace(/```json\n?|```/g, "").trim()) as T
+  const cleaned = text.replace(/```json\n?|```/g, "").trim()
+  try {
+    return JSON.parse(cleaned) as T
+  } catch {
+    // If the response was truncated, the stop_reason will be "max_tokens"
+    throw new Error(`Haiku returned malformed JSON (stop_reason: ${response.stop_reason}): ${cleaned.slice(0, 200)}`)
+  }
 }
 
 async function validateInput(prayerRequest: string): Promise<ValidationResult> {
@@ -29,7 +35,7 @@ async function generateResponse(prayerRequest: string): Promise<PrayerResponse> 
   return callHaiku<PrayerResponse>(
     STAGE2_SYSTEM,
     `Please respond to this prayer request from someone at our church:\n\n"${prayerRequest}"`,
-    500
+    1024
   )
 }
 

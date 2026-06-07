@@ -15,6 +15,9 @@ export default async function GivePage() {
   const bsb = bank?.bsb ?? "016-268";
   const accountNumber = bank?.accountNumber ?? "4956 4301 5";
 
+  const bd = settings?.bottleDrive;
+  const showBottleDrive = bd?.enabled !== false;
+
   return (
     <>
       <PageBanner eyebrow="Generosity" title="Give" image={settings?.giveImage ?? "/give.jpg"} />
@@ -51,6 +54,28 @@ export default async function GivePage() {
                 </div>
               </div>
             </div>
+
+            {showBottleDrive && (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col gap-5">
+                <div className="w-12 h-12 rounded-full bg-rosegold/20 flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-rosegold">
+                    <path d="M8 2h4v2.5c0 .5.2 1 .6 1.3L14 7.5V16a1 1 0 01-1 1H7a1 1 0 01-1-1V7.5l1.4-1.7c.4-.3.6-.8.6-1.3V2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M6 10h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-display text-2xl text-white mb-2">
+                    {bd?.title ?? "Bottle drive"}
+                  </h3>
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    {bd?.description ?? "Bring your empty 10¢ and 20¢ refund containers to church. Every bottle counts — money collected goes directly to support a mission in India."}
+                  </p>
+                  <p className="text-white/40 text-xs mt-4">
+                    {bd?.note ?? "Drop bottles off at church on Sundays or contact us to arrange collection."}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {page?.body && (

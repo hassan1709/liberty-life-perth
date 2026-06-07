@@ -74,6 +74,17 @@ export const siteSettings = defineType({
         defineField({ name: "body", title: "Body text", type: "text", rows: 3 }),
       ],
     }),
+    defineField({
+      name: "bottleDrive",
+      title: "Bottle drive (Give page)",
+      type: "object",
+      fields: [
+        defineField({ name: "enabled", title: "Show bottle drive card", type: "boolean", initialValue: true }),
+        defineField({ name: "title", title: "Card title", type: "string", initialValue: "Bottle drive" }),
+        defineField({ name: "description", title: "Description", type: "text", rows: 3 }),
+        defineField({ name: "note", title: "Small print / note", type: "string" }),
+      ],
+    }),
   ],
   preview: { prepare: () => ({ title: "Site Settings" }) },
 });

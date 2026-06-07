@@ -171,6 +171,12 @@ export type SiteSettings = {
     title?: string;
     body?: string;
   };
+  bottleDrive?: {
+    enabled?: boolean;
+    title?: string;
+    description?: string;
+    note?: string;
+  };
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
@@ -185,7 +191,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       "giveImage": giveImage.asset->url,
       bankDetails,
       whatToExpect,
-      giveCta
+      giveCta,
+      bottleDrive
     }`,
     {},
     { next: { tags: ["siteSettings"] } }
