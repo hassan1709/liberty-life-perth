@@ -21,6 +21,19 @@ export default async function Hero() {
       )}
 
 
+      {/* Hero text */}
+      <div className="relative z-10 text-center flex flex-col items-center gap-1 select-none">
+        <p className="font-[family-name:var(--font-josefin)] text-7xl md:text-[7rem] lg:text-[10rem] font-[900] tracking-[0.1em] text-white [text-shadow:0_0_1px_white]">
+          Welcome
+        </p>
+        <p className="font-[family-name:var(--font-josefin)] text-7xl md:text-[7rem] lg:text-[10rem] font-[900] tracking-[0.1em] text-white [text-shadow:0_0_1px_white]">
+          To
+        </p>
+        <p className="font-[family-name:var(--font-dancing)] text-8xl md:text-[9rem] lg:text-[13rem] font-bold text-white mt-2 [text-shadow:0_0_2px_white,0_0_2px_white]">
+          Liberty Life Perth
+        </p>
+      </div>
+
       {/* Circle motif background decoration */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full border border-white/5" />

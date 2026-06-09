@@ -8,6 +8,8 @@
 
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-josefin: "Montserrat", system-ui, sans-serif;
+  --font-dancing: "Dancing Script", cursive;
 }
 
 body {
