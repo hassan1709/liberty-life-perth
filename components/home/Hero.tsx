@@ -29,7 +29,7 @@ export default async function Hero() {
         <p className="font-[family-name:var(--font-josefin)] text-7xl md:text-[7rem] lg:text-[10rem] font-[900] tracking-[0.1em] text-white [text-shadow:0_0_1px_white]">
           To
         </p>
-        <p className="font-[family-name:var(--font-dancing)] text-8xl md:text-[9rem] lg:text-[13rem] font-bold text-white mt-2 [text-shadow:0_0_2px_white,0_0_2px_white]">
+        <p className="font-[family-name:var(--font-dancing)] text-6xl md:text-[7.5rem] lg:text-[11rem] text-white mt-2 [text-shadow:0_0_2px_white,0_0_2px_white]">
           Liberty Life Perth
         </p>
       </div>

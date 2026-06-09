@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Playlist Script";
+  src: url("/fonts/PlaylistScript.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-navy: #1E1B5E;
   --color-navy-dark: #16144A;
@@ -9,7 +17,7 @@
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-josefin: "Montserrat", system-ui, sans-serif;
-  --font-dancing: "Dancing Script", cursive;
+  --font-dancing: "Playlist Script", cursive;
 }
 
 body {
