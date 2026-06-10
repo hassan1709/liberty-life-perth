@@ -23,37 +23,45 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Our story */}
-      <section className="py-16 md:py-20">
+      {/* Mission */}
+      <section className="py-16 md:py-20 border-b border-white/10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-3xl text-white mb-6">Our story</h2>
-          {data?.page?.body ? (
+          <h2 className="font-display text-3xl text-white mb-6">
+            {data?.mission?.title ?? "Our Mission"}
+          </h2>
+          {data?.mission?.body ? (
             <div className="prose prose-invert max-w-none [&_p]:text-white/70 [&_p]:leading-relaxed">
-              <PortableText value={data.page.body} />
+              <PortableText value={data.mission.body} />
             </div>
           ) : (
             <p className="text-white/60 leading-relaxed">
-              Liberty Life Perth was born out of a vision to build a church that feels like family — where no one is a number, everyone is known, and everyone belongs. We believe church should be a place of warmth, authenticity, and genuine community.
+              Add your mission statement in Studio under Pages → mission.
             </p>
           )}
         </div>
       </section>
 
-      {/* What we believe */}
-      {data?.beliefs?.body && (
-        <section className="py-16 md:py-20 bg-navy-dark border-y border-white/10">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-display text-3xl text-white mb-6">What we believe</h2>
-            <div className="prose prose-invert max-w-none [&_p]:text-white/70 [&_li]:text-white/70">
-              <PortableText value={data.beliefs.body} />
+      {/* Vision */}
+      <section className="py-16 md:py-20 bg-navy-dark border-b border-white/10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-display text-3xl text-white mb-6">
+            {data?.vision?.title ?? "Our Vision"}
+          </h2>
+          {data?.vision?.body ? (
+            <div className="prose prose-invert max-w-none [&_p]:text-white/70 [&_p]:leading-relaxed">
+              <PortableText value={data.vision.body} />
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <p className="text-white/60 leading-relaxed">
+              Add your vision statement in Studio under Pages → vision.
+            </p>
+          )}
+        </div>
+      </section>
 
       {/* Meet the team */}
       {data?.staff?.length > 0 && (
-        <section className="py-16 md:py-20">
+        <section className="py-16 md:py-20 border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
               <SectionHeader eyebrow="Our people" title="Meet the team" />
@@ -84,32 +92,6 @@ export default async function AboutPage() {
           </div>
         </section>
       )}
-
-      {/* Kids & youth */}
-      <section className="py-16 md:py-20 bg-navy-dark border-y border-white/10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <SectionHeader
-              eyebrow="Families"
-              title="Kids & youth"
-              subtitle="We love kids. Every Sunday, your children will experience a fun and safe environment designed just for them."
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              { age: "0–2", label: "Nursery", desc: "A loving, supervised space for babies and toddlers." },
-              { age: "3–12", label: "Kids Church", desc: "Engaging lessons, games, and worship for primary-age kids." },
-              { age: "13+", label: "Youth", desc: "A community where teenagers belong, grow, and lead." },
-            ].map((g) => (
-              <div key={g.age} className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-3">
-                <span className="text-xs font-medium uppercase tracking-widest text-rosegold">{g.age}</span>
-                <h3 className="font-display text-xl text-white">{g.label}</h3>
-                <p className="text-sm text-white/60">{g.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="py-16 md:py-20">

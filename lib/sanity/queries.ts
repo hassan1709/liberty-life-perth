@@ -111,9 +111,9 @@ export async function getAnnouncements(): Promise<AnnouncementDocument[]> {
 export async function getAboutPage() {
   return sanityClient.fetch(
     `{
-      "page": *[_type == "page" && slug.current == "about"][0] { title, body },
-      "staff": *[_type == "staff"] | order(order asc) { _id, name, role, photo, bio },
-      "beliefs": *[_type == "page" && slug.current == "beliefs"][0] { body }
+      "mission": *[_type == "page" && slug.current == "mission"][0] { title, body },
+      "vision": *[_type == "page" && slug.current == "vision"][0] { title, body },
+      "staff": *[_type == "staff"] | order(order asc) { _id, name, role, photo, bio }
     }`,
     {},
     { next: { tags: ["page", "staff"] } }
