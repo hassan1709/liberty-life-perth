@@ -5,9 +5,21 @@ import Link from "next/link";
 import Image from "next/image";
 import PrayerRequestButton from "@/components/ui/PrayerRequestButton";
 
-const links = [
+type NavLink = {
+  href: string;
+  label: string;
+  children?: { href: string; label: string }[];
+};
+
+const links: NavLink[] = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
+  {
+    href: "/about",
+    label: "About",
+    children: [
+      { href: "/about/pastor", label: "Message from our Pastor" },
+    ],
+  },
   { href: "/testimonies", label: "Testimonies" },
   { href: "/announcements", label: "Announcements" },
   { href: "/events", label: "Events" },
@@ -36,15 +48,40 @@ export default function Nav() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) =>
+              link.children ? (
+                <div key={link.href} className="relative group">
+                  <Link
+                    href={link.href}
+                    className="text-sm font-medium text-white/80 hover:text-white transition-colors flex items-center gap-1"
+                  >
+                    {link.label}
+                    <span className="text-white/40 text-xs">▾</span>
+                  </Link>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block">
+                    <div className="bg-navy-dark border border-white/10 rounded-xl py-2 min-w-[220px] shadow-xl">
+                      {link.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className="block px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium text-white/80 hover:text-white transition-colors"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
             <PrayerRequestButton size="sm" />
           </nav>
 
@@ -74,14 +111,29 @@ export default function Nav() {
         <div className="md:hidden bg-navy-dark border-t border-white/10">
           <nav className="flex flex-col px-4 py-4 gap-4">
             {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-base font-medium text-white/80 hover:text-white transition-colors"
-                onClick={() => setOpen(false)}
-              >
-                {link.label}
-              </Link>
+              <div key={link.href}>
+                <Link
+                  href={link.href}
+                  className="text-base font-medium text-white/80 hover:text-white transition-colors"
+                  onClick={() => setOpen(false)}
+                >
+                  {link.label}
+                </Link>
+                {link.children && (
+                  <div className="mt-2 ml-4 flex flex-col gap-2 border-l border-white/10 pl-3">
+                    {link.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className="text-sm text-white/60 hover:text-white transition-colors"
+                        onClick={() => setOpen(false)}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
             <PrayerRequestButton size="sm" />
           </nav>

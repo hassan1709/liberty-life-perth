@@ -120,6 +120,14 @@ export async function getAboutPage() {
   );
 }
 
+export async function getPastorMessagePage() {
+  return sanityClient.fetch(
+    `*[_type == "page" && slug.current == "pastor-message"][0] { title, body }`,
+    {},
+    { next: { tags: ["page"] } }
+  );
+}
+
 export async function getGivePage() {
   return sanityClient.fetch(
     `*[_type == "page" && slug.current == "give"][0] { title, body }`,
