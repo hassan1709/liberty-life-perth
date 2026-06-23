@@ -1,17 +1,18 @@
 export type PCEvent = {
   id: string;
-  type: "Event";
+  type: "EventInstance";
   attributes: {
     name: string;
-    summary: string | null;
     description: string | null;
     starts_at: string;
-    ends_at: string;
+    ends_at: string | null;
     location: string | null;
     registration_url: string | null;
     image_url: string | null;
-    featured: boolean;
-    visible_in_church_center: boolean;
+    all_day_event: boolean;
+    church_center_url: string | null;
+    recurrence: string | null;
+    compact_recurrence_description: string | null;
   };
 };
 

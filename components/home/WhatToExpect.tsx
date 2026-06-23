@@ -1,8 +1,9 @@
+import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import type { SiteSettings } from "@/lib/sanity/queries";
 
 const DEFAULT_CARDS = [
-  { icon: "🇦🇺🇪🇸", title: "Servicio en Español", description: "Fortnightly on Saturdays at 5:00 PM — a Spirit-filled service in Spanish for our Latin American community." },
+  { icon: "__flags__", title: "Servicio en Español", description: "Fortnightly on Saturdays at 5:00 PM — a Spirit-filled service in Spanish for our Latin American community." },
   { icon: "🎵", title: "Worship", description: "Contemporary, Spirit-led worship that draws your heart toward God. Expect passionate, live music that's both accessible and authentic." },
   { icon: "📖", title: "Message", description: "Relevant, Bible-based teaching that applies to real life. Our messages are engaging, practical, and grounded in Scripture." },
   { icon: "👶", title: "Kids", description: "A safe and fun environment for children from babies through to youth. Your kids will love it — and learn about Jesus." },
@@ -73,7 +74,14 @@ export default function WhatToExpect({ settings }: Props) {
               key={card.title}
               className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-4 hover:bg-white/8 transition-colors"
             >
-              <span className="text-3xl">{card.icon}</span>
+              {card.icon === "__flags__" ? (
+                <div className="flex items-center gap-1">
+                  <Image src="/flag-australia.svg" alt="Australian flag" width={32} height={22} className="rounded-sm" />
+                  <Image src="/spanish-flag.svg" alt="Spanish flag" width={32} height={22} className="rounded-sm" />
+                </div>
+              ) : (
+                <span className="text-3xl">{card.icon}</span>
+              )}
               <div>
                 <h3 className="font-display text-xl font-medium text-white mb-2">{card.title}</h3>
                 <p className="text-sm text-white/60 leading-relaxed">{card.description}</p>

@@ -493,12 +493,14 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] Saturday Spanish service card added to WhatToExpect (fortnightly, shown first)
 
 ### Next session
-- [ ] Add `ANTHROPIC_API_KEY`, `SANITY_WRITE_TOKEN`, `TESTIMONY_APPROVE_SECRET` to Amplify env vars
-- [ ] Activate Google Workspace once approved — set up church email accounts
-- [ ] Update contact form env vars to use new Workspace email accounts
-- [ ] Update Give page Planning Center Giving URL
-- [ ] Add Planning Center credentials to `.env.local` and Amplify env vars
+- [x] Add `ANTHROPIC_API_KEY`, `SANITY_WRITE_TOKEN`, `TESTIMONY_APPROVE_SECRET` to Amplify env vars — Sanity fully working
+- [ ] Activate Google Workspace once approved — set up church email accounts (pending Google approval)
+- [ ] Update contact form env vars to use new Workspace email accounts (blocked on Google Workspace)
+- [ ] Add Planning Center credentials to `.env.local` and Amplify env vars — Events page already wired to PC, just needs credentials
 - [ ] Add staff photos and content in Sanity Studio (`/studio`)
+
+> **Give page:** Planning Center Giving URL not needed — bank transfer details are used instead (BSB 016-268, Acc 4956 4301 5)
+> **Events page:** Already pulls from Planning Center API (`/calendar/v2/events`) — no Sanity needed, just add PC credentials
 
 ---
 

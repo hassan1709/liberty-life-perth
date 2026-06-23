@@ -29,6 +29,7 @@ const links: NavLink[] = [
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-navy/95 backdrop-blur-sm border-b border-white/10">
@@ -50,27 +51,43 @@ export default function Nav() {
           <nav className="hidden md:flex items-center gap-8">
             {links.map((link) =>
               link.children ? (
-                <div key={link.href} className="relative group">
+                <div
+                  key={link.href}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(link.href)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
                   <Link
                     href={link.href}
-                    className="text-sm font-medium text-white/80 hover:text-white transition-colors flex items-center gap-1"
+                    onClick={(e) => {
+                      if (openDropdown !== link.href) {
+                        e.preventDefault();
+                        setOpenDropdown(link.href);
+                      } else {
+                        setOpenDropdown(null);
+                      }
+                    }}
+                    className="text-sm font-medium text-white/80 hover:text-white transition-colors flex items-center gap-2"
                   >
                     {link.label}
-                    <span className="text-white/40 text-xs">▾</span>
+                    <span className="text-white/60 text-sm">▾</span>
                   </Link>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block">
-                    <div className="bg-navy-dark border border-white/10 rounded-xl py-2 min-w-[220px] shadow-xl">
-                      {link.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className="block px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
+                  {openDropdown === link.href && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3">
+                      <div className="bg-navy-dark border border-white/10 rounded-xl py-2 min-w-[220px] shadow-xl">
+                        {link.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className="block px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                            onClick={() => setOpenDropdown(null)}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <Link

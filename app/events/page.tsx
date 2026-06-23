@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 async function getEvents(): Promise<PCEvent[]> {
   try {
     const data: PCEventsResponse = await pcFetch(
-      "/calendar/v2/events?filter=upcoming&per_page=20&order=starts_at",
+      "/calendar/v2/event_instances?filter=upcoming&per_page=10&order=starts_at",
       0
     );
     return data.data ?? [];
