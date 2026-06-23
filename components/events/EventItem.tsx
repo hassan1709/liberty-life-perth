@@ -51,7 +51,7 @@ export default function EventItem({ event }: { event: PCEvent }) {
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-rosegold transition-colors"
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="text-rosegold">
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none" className="text-rosegold flex-shrink-0">
                 <path
                   d="M6 1C4.067 1 2.5 2.567 2.5 4.5c0 2.813 3.5 6.5 3.5 6.5S9.5 7.313 9.5 4.5C9.5 2.567 7.933 1 6 1z"
                   stroke="currentColor" strokeWidth="1.2"

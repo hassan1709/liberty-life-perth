@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import Anthropic from "@anthropic-ai/sdk";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -27,6 +28,26 @@ export async function POST(req: NextRequest) {
     typeof message !== "string" || message.trim().length < 1
   ) {
     return NextResponse.json({ error: "Invalid field values" }, { status: 400 });
+  }
+
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const check = await anthropic.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 10,
+        system: `You are a content moderator for a church contact form. Respond with only "pass" or "fail".
+Fail if the message is spam, abusive, offensive, or clearly not a genuine contact attempt.
+Pass everything else, including complaints, criticism, or unusual requests — real people deserve a response.`,
+        messages: [{ role: "user", content: `Name: ${name.trim()}\nMessage: ${message.trim()}` }],
+      });
+      const verdict = (check.content[0] as { text: string }).text.trim().toLowerCase();
+      if (verdict === "fail") {
+        return NextResponse.json({ error: "Your message could not be sent. Please try again or contact us directly." }, { status: 400 });
+      }
+    } catch {
+      // If AI check fails, allow the message through
+    }
   }
 
   const gmailUser = process.env.CONTACT_EMAIL_FROM;

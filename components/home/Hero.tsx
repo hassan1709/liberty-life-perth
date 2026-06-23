@@ -22,7 +22,7 @@ export default async function Hero() {
 
 
       {/* Hero text */}
-      <div className="relative z-10 text-center flex flex-col items-center gap-1 select-none">
+      <div className="relative z-10 text-center flex flex-col items-center gap-1 select-none px-6 sm:px-0">
         <p className="font-[family-name:var(--font-josefin)] text-7xl md:text-[7rem] lg:text-[10rem] font-[900] tracking-[0.1em] text-white [text-shadow:0_0_1px_white]">
           Welcome
         </p>

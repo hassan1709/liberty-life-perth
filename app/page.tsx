@@ -12,7 +12,7 @@ export const revalidate = 3600;
 async function getUpcomingEvents() {
   try {
     const data: PCEventsResponse = await pcFetch(
-      "/calendar/v2/events?filter=upcoming&per_page=3&include=event_instances",
+      "/calendar/v2/event_instances?filter=upcoming&per_page=3&order=starts_at",
       3600
     );
     return data.data ?? [];
