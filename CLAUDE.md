@@ -491,17 +491,25 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] Location links to Google Maps in ServiceBar and Footer
 - [x] Home nav link added
 - [x] Saturday Spanish service card added to WhatToExpect (fortnightly, shown first)
+- [x] Spanish/Australian flag SVGs added to WhatToExpect Spanish service card (replaces emoji flags)
+- [x] "Under renovation" banner removed from all pages
+- [x] Planning Center connected — Events page uses `event_instances` endpoint for correct dates
+- [x] Home page events section reuses EventItem component, endpoint fixed to event_instances
+- [x] About dropdown in nav fixed for touch/Android landscape (click + hover)
+- [x] AI moderation (Claude Haiku) added to contact form API route
+- [x] Event location links to Google Maps
+- [x] Gmail App Password regenerated — update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars
 
 ### Next session
-- [x] Add `ANTHROPIC_API_KEY`, `SANITY_WRITE_TOKEN`, `TESTIMONY_APPROVE_SECRET` to Amplify env vars — Sanity fully working
+- [ ] Update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars (new App Password generated)
 - [ ] Activate Google Workspace once approved — set up church email accounts (pending Google approval)
 - [ ] Update contact form env vars to use new Workspace email accounts (blocked on Google Workspace)
-- [ ] Add Planning Center credentials to `.env.local` and Amplify env vars — Events page already wired to PC, just needs credentials
 - [ ] Add staff photos and content in Sanity Studio (`/studio`)
 
 > **Give page:** Planning Center Giving URL not needed — bank transfer details are used instead (BSB 016-268, Acc 4956 4301 5)
-> **Events page:** Already pulls from Planning Center API (`/calendar/v2/events`) — no Sanity needed, just add PC credentials
+> **Events page:** Uses `/calendar/v2/event_instances` endpoint with Personal Access Token auth. Managed in PC Calendar app — delegate to church staff for event entry.
+> **Planning Center auth:** Personal Access Token (not OAuth app credentials). Token ID + secret stored as `PLANNING_CENTER_APP_ID` + `PLANNING_CENTER_SECRET`.
 
 ---
 
-*Last updated: June 2026 — video hero, announcements page, full Studio CMS wiring, PageBanner component*
+*Last updated: June 2026 — Planning Center events, AI contact moderation, nav touch fix, flag SVGs*

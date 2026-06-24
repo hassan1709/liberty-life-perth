@@ -34,16 +34,16 @@ export default function Nav() {
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-navy/95 backdrop-blur-sm border-b border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-32">
+        <div className="flex items-center justify-between h-24 md:h-28">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo-no-bg.png"
+              src="/logo-badge.png"
               alt="Liberty Life Perth"
-              width={1920}
-              height={1080}
+              width={800}
+              height={800}
               loading="eager"
               priority
-              className="object-contain h-28 w-auto"
+              className="object-contain h-20 md:h-24 w-auto"
             />
           </Link>
 
