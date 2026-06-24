@@ -13,10 +13,8 @@ export function proxy(request: NextRequest) {
   const domain = host.replace(/^www\./, "").split(":")[0];
 
   if (REDIRECT_DOMAINS.includes(domain)) {
-    const url = request.nextUrl.clone();
-    url.host = PRIMARY_DOMAIN;
-    url.protocol = "https:";
-    return NextResponse.redirect(url, { status: 301 });
+    const destination = `https://${PRIMARY_DOMAIN}${request.nextUrl.pathname}${request.nextUrl.search}`;
+    return NextResponse.redirect(destination, { status: 301 });
   }
 
   return NextResponse.next();
