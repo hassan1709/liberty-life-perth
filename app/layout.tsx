@@ -36,7 +36,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${cormorant.variable} ${montserrat.variable}`}>
       <body className="min-h-screen flex flex-col bg-navy text-white antialiased">
         <Nav />
-        <main className="flex-1 mt-24 md:mt-28">{children}</main>
+        <main className="flex-1 mt-24">{children}</main>
         <Footer />
       </body>
     </html>
