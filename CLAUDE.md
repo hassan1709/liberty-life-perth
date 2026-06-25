@@ -499,6 +499,11 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] AI moderation (Claude Haiku) added to contact form API route
 - [x] Event location links to Google Maps
 - [x] Gmail App Password regenerated — update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars
+- [x] Favicon set added — `app/icon.png` (192px), `app/apple-icon.png` (180px), `public/icon-512.png` (512px) — navy badge from `/Users/hassancito/Documents/LibertyLifeChurch/Assets/favicon-bundle/navy/`
+- [x] Nav logo replaced — `public/logo-badge.png` (white transparent badge from `Assets/logo-badge/logo-white-transparent.png`), replaces `logo-no-bg.png`
+- [x] Nav bar height reduced — `h-24 md:h-28` with `overflow-visible`, logo `h-20 md:h-24 w-auto`
+- [x] `.claude/` added to `.gitignore`
+- [x] Content editor guides created — `sanity-guide.html` and `planning-center-guide.html` saved to `/Users/hassancito/Documents/LibertyLifeChurch/`
 
 ### Next session
 - [ ] Update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars (new App Password generated)
@@ -509,7 +514,9 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 > **Give page:** Planning Center Giving URL not needed — bank transfer details are used instead (BSB 016-268, Acc 4956 4301 5)
 > **Events page:** Uses `/calendar/v2/event_instances` endpoint with Personal Access Token auth. Managed in PC Calendar app — delegate to church staff for event entry.
 > **Planning Center auth:** Personal Access Token (not OAuth app credentials). Token ID + secret stored as `PLANNING_CENTER_APP_ID` + `PLANNING_CENTER_SECRET`.
+> **Nav logo:** `public/logo-badge.png` — white transparent badge (square), displayed with `overflow-visible` so it can extend beyond the nav bar height. Source file: `Assets/logo-badge/logo-white-transparent.png`.
+> **Domain redirects:** Attempted via Amplify rewrites (doesn't support cross-domain) and Next.js proxy.ts (reverted — caused loading issues in production). All 4 domains currently serve the site independently.
 
 ---
 
-*Last updated: June 2026 — Planning Center events, AI contact moderation, nav touch fix, flag SVGs*
+*Last updated: June 2026 — favicon, new logo badge, nav height, content editor guides*
