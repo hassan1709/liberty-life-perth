@@ -172,7 +172,12 @@ libertylifeperth/
 │   ├── testimonies.png         # Fallback banner image (overridable via siteSettings)
 │   ├── announcements.png
 │   ├── events.png
-│   └── give.jpg
+│   ├── give.jpg
+│   └── emblems/                # Event type icons — filename must match PC tag name
+│       ├── sunday_service.png
+│       ├── saturday-spanish-service.png
+│       ├── praying-night.png
+│       └── church-outreach.png
 ├── amplify.yml                 # AWS Amplify build config
 ├── .env.local.example          # Copy to .env.local and fill in real values
 ├── next.config.ts              # images.remotePatterns for cdn.sanity.io
@@ -313,7 +318,21 @@ export async function pcFetch(path: string, revalidate = 3600) {
 
 | Endpoint | Used for | Revalidate |
 |---|---|---|
-| `GET /calendar/v2/events?filter=upcoming&order=starts_at` | Events page, home section | 60 min (home) / SSR (events page) |
+| `GET /calendar/v2/event_instances?filter=upcoming&order=starts_at&include=tags` | Events page, home section | 60 min (home) / SSR (events page) |
+
+**Event type emblems:**  
+Events display a circular emblem icon on the right of each card, driven by Planning Center tags. Tags are created in PC Calendar → Settings → Tags (Tag Group: "Event Type"). The tag `name` must match a PNG filename in `public/emblems/`. Supported tags:
+
+| PC tag name | Emblem file | Label |
+|---|---|---|
+| `sunday_service` | `public/emblems/sunday_service.png` | Sunday Service |
+| `saturday-spanish-service` | `public/emblems/saturday-spanish-service.png` | Spanish Service |
+| `praying-night` | `public/emblems/praying-night.png` | Prayer Night |
+| `church-outreach` | `public/emblems/church-outreach.png` | Church Outreach |
+
+To add a new type: create the tag in PC, add a matching PNG to `public/emblems/`, and add the label to `KNOWN_EMBLEMS` + `TAG_LABELS` in `components/events/EventItem.tsx`. Events without a matching tag show no emblem.
+
+The API returns tags via the JSON:API `included` array — resolved in `app/page.tsx` and `app/events/page.tsx` into `PCEventWithTags` before rendering. Types are in `lib/planningcenter/types.ts`.
 
 ---
 
@@ -504,6 +523,7 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] Nav bar height reduced — `h-24 md:h-28` with `overflow-visible`, logo `h-20 md:h-24 w-auto`
 - [x] `.claude/` added to `.gitignore`
 - [x] Content editor guides created — `sanity-guide.html` and `planning-center-guide.html` saved to `/Users/hassancito/Documents/LibertyLifeChurch/`
+- [x] Event type emblems — PC Calendar tags drive circular icons on event cards (`public/emblems/`); 4 types: sunday_service, saturday-spanish-service, praying-night, church-outreach
 
 ### Next session
 - [ ] Update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars (new App Password generated)
@@ -512,11 +532,11 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [ ] Add staff photos and content in Sanity Studio (`/studio`)
 
 > **Give page:** Planning Center Giving URL not needed — bank transfer details are used instead (BSB 016-268, Acc 4956 4301 5)
-> **Events page:** Uses `/calendar/v2/event_instances` endpoint with Personal Access Token auth. Managed in PC Calendar app — delegate to church staff for event entry.
+> **Events page:** Uses `/calendar/v2/event_instances?include=tags` endpoint with Personal Access Token auth. Managed in PC Calendar app — delegate to church staff for event entry. Tags drive emblem icons — create tags in PC Calendar → Settings → Tags first, then apply to events.
 > **Planning Center auth:** Personal Access Token (not OAuth app credentials). Token ID + secret stored as `PLANNING_CENTER_APP_ID` + `PLANNING_CENTER_SECRET`.
 > **Nav logo:** `public/logo-badge.png` — white transparent badge (square), displayed with `overflow-visible` so it can extend beyond the nav bar height. Source file: `Assets/logo-badge/logo-white-transparent.png`.
 > **Domain redirects:** Attempted via Amplify rewrites (doesn't support cross-domain) and Next.js proxy.ts (reverted — caused loading issues in production). All 4 domains currently serve the site independently.
 
 ---
 
-*Last updated: June 2026 — favicon, new logo badge, nav height, content editor guides*
+*Last updated: June 2026 — event type emblems via Planning Center tags*
