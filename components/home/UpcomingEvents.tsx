@@ -1,9 +1,9 @@
 import SectionHeader from "@/components/ui/SectionHeader";
 import Button from "@/components/ui/Button";
 import EventItem from "@/components/events/EventItem";
-import type { PCEvent } from "@/lib/planningcenter/types";
+import type { PCEventWithTags } from "@/lib/planningcenter/types";
 
-export default function UpcomingEvents({ events }: { events: PCEvent[] }) {
+export default function UpcomingEvents({ events }: { events: PCEventWithTags[] }) {
   if (!events.length) return null;
 
   return (
@@ -22,7 +22,7 @@ export default function UpcomingEvents({ events }: { events: PCEvent[] }) {
 
         <div className="flex flex-col gap-4">
           {events.map((event) => (
-            <EventItem key={event.id} event={event} />
+            <EventItem key={event.id} event={event} tags={event.tags} />
           ))}
         </div>
       </div>
