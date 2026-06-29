@@ -30,11 +30,11 @@ export default async function Footer() {
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center">
               <Image
-                src="/logo-no-bg.png"
+                src="/logo-oneline.png"
                 alt="Liberty Life Perth"
-                width={1920}
-                height={1080}
-                className="object-contain h-16 w-auto"
+                width={2600}
+                height={1200}
+                className="object-contain h-14 w-auto"
               />
             </Link>
             <p className="text-sm text-white/60 leading-relaxed">
