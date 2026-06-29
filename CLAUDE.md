@@ -68,8 +68,8 @@ Use `font-display` for headings/hero, `font-sans` for body (default).
 
 ### Logo
 
-- File: `public/logo-no-bg.png` — transparent background, 1920×1080, used in Nav (`h-28 w-auto`) and Footer (`h-16 w-auto`)
-- Old file `public/logo-white.png` still exists but no longer used
+- File: `public/logo-oneline.png` — white text, transparent background, 2600×1200 wide horizontal format, used in Nav (`h-24 w-auto`) and Footer (`h-14 w-auto`). Source: `Assets/logo-oneline/oneline-white-transparent.png`
+- Old files `public/logo-badge.png` and `public/logo-no-bg.png` still exist but are no longer used
 - The circular motif is echoed as decorative background rings in hero/CTA sections
 
 ### Design principles
@@ -521,6 +521,7 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] Favicon set added — `app/icon.png` (192px), `app/apple-icon.png` (180px), `public/icon-512.png` (512px) — navy badge from `/Users/hassancito/Documents/LibertyLifeChurch/Assets/favicon-bundle/navy/`
 - [x] Nav logo replaced — `public/logo-badge.png` (white transparent badge from `Assets/logo-badge/logo-white-transparent.png`), replaces `logo-no-bg.png`
 - [x] Nav bar height reduced — `h-24 md:h-28` with `overflow-visible`, logo `h-20 md:h-24 w-auto`
+- [x] Logo replaced with one-line horizontal variant — `public/logo-oneline.png` (white, 2600×1200), Nav `h-24`, Footer `h-14`
 - [x] `.claude/` added to `.gitignore`
 - [x] Content editor guides created — `sanity-guide.html` and `planning-center-guide.html` saved to `/Users/hassancito/Documents/LibertyLifeChurch/`
 - [x] Event type emblems — PC Calendar tags drive circular icons on event cards (`public/emblems/`); 4 types: sunday_service, saturday-spanish-service, praying-night, church-outreach
@@ -539,4 +540,4 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 
 ---
 
-*Last updated: June 2026 — event type emblems via Planning Center tags*
+*Last updated: June 2026 — one-line horizontal logo in nav and footer*
