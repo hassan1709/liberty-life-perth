@@ -28,7 +28,7 @@
 | Hosting | AWS Amplify | Git-push deploys, auto SSL, CDN. Config in `amplify.yml` |
 | Email (transactional) | Nodemailer + Gmail SMTP | Contact form + prayer requests + testimony notifications via `webadmin@libertylifeperth.org` |
 | Email (mailboxes) | Google Workspace (Nonprofits) | Applied for free nonprofit plan — pending approval. Legal entity: Liberty Christian Centre Inc (ABN 81 763 203 730) |
-| AI | Anthropic Claude Haiku | Prayer request pipeline (3-stage) + testimony moderation |
+| AI | Anthropic Claude (Haiku + Sonnet) | Prayer request pipeline (3-stage) + testimony moderation |
 | Video | YouTube embeds + Sanity CDN | Hero background video hosted as Sanity file asset |
 | Analytics | None initially | Add later if needed |
 
@@ -114,7 +114,7 @@ libertylifeperth/
 │       ├── contact/
 │       │   └── route.ts        # POST → Nodemailer (Gmail SMTP). Accepts type="prayer" for subject line
 │       ├── prayer/
-│       │   ├── route.ts        # POST → 3-stage Claude Haiku pipeline + emails
+│       │   ├── route.ts        # POST → 3-stage pipeline (Haiku stage 1, Sonnet stages 2+3) + emails
 │       │   ├── prompts.ts      # Stage 1/2/3 system prompts
 │       │   ├── fallback.ts     # Hardcoded fallback prayer response
 │       │   └── types.ts        # TypeScript types for the pipeline
@@ -280,17 +280,17 @@ await fetch(`https://${projectId}.api.sanity.io/v2024-01-01/assets/images/${data
 
 ## Prayer request feature
 
-Three-stage Claude Haiku pipeline on every submission:
-1. **Stage 1** — validates input (screens spam/abuse/gibberish/obvious non-requests)
-2. **Stage 2** — generates a pastoral response with 2–3 verified Bible verses (NIV)
-3. **Stage 3** — audits verse existence and relevance; retries Stage 2 once if it fails
+Three-stage pipeline on every submission:
+1. **Stage 1** — Claude Haiku validates input (screens spam/abuse/gibberish/obvious non-requests)
+2. **Stage 2** — Claude Sonnet generates a pastoral response with 2–3 verified Bible verses (NIV)
+3. **Stage 3** — Claude Sonnet audits verse existence and relevance; retries Stage 2 once if it fails
 4. Falls back to hardcoded response if both Stage 2+3 attempts fail
 
-Sends two emails in parallel:
+Emails are sent via `after()` (after the response is returned) so the user isn't waiting for SMTP:
 - Church team notification (to `CONTACT_EMAIL_TO`)
 - Confirmation email to submitter with branded HTML (verses, closing line, service invite) — only if email provided
 
-Cost: ~$0.002/request at Haiku pricing (~$0.21/month at 100 requests).
+Cost: ~$0.01/request (~$1/month at 100 requests).
 
 ---
 
@@ -492,7 +492,7 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] Amplify runtime env var fix — vars piped into `.env.production` via `amplify.yml`
 - [x] New logo (`logo-no-bg.png`) in Nav and Footer
 - [x] "Prayer request" modal (portal-based) replacing "Plan a visit" button in Nav + Hero
-- [x] Prayer request: 3-stage Claude Haiku pipeline with fallback + branded confirmation email
+- [x] Prayer request: 3-stage pipeline (Haiku stage 1, Sonnet stages 2+3) with fallback + branded confirmation email
 - [x] Give page: removed "Give online" card, added real bank transfer details (Liberty Life Centre, BSB 016-268, Acc 4956 4301 5)
 - [x] All YouTube links updated to `@libertylifeperth5011`
 - [x] "Website under renovation" banner added to all pages via layout
