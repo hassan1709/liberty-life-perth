@@ -7,9 +7,9 @@ import type { ValidationResult, PrayerResponse, AuditResult, PrayerRequestBody }
 
 const client = new Anthropic()
 
-async function callHaiku<T>(systemPrompt: string, userMessage: string, maxTokens: number): Promise<T> {
+async function callClaude<T>(model: string, systemPrompt: string, userMessage: string, maxTokens: number): Promise<T> {
   const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
+    model,
     max_tokens: maxTokens,
     system: systemPrompt,
     messages: [{ role: "user", content: userMessage }],
@@ -19,13 +19,13 @@ async function callHaiku<T>(systemPrompt: string, userMessage: string, maxTokens
   try {
     return JSON.parse(cleaned) as T
   } catch {
-    // If the response was truncated, the stop_reason will be "max_tokens"
-    throw new Error(`Haiku returned malformed JSON (stop_reason: ${response.stop_reason}): ${cleaned.slice(0, 200)}`)
+    throw new Error(`Model returned malformed JSON (stop_reason: ${response.stop_reason}): ${cleaned.slice(0, 200)}`)
   }
 }
 
 async function validateInput(prayerRequest: string): Promise<ValidationResult> {
-  return callHaiku<ValidationResult>(
+  return callClaude<ValidationResult>(
+    "claude-haiku-4-5-20251001",
     STAGE1_SYSTEM,
     `Please evaluate this prayer request submission:\n\n"${prayerRequest}"`,
     100
@@ -33,7 +33,8 @@ async function validateInput(prayerRequest: string): Promise<ValidationResult> {
 }
 
 async function generateResponse(prayerRequest: string): Promise<PrayerResponse> {
-  return callHaiku<PrayerResponse>(
+  return callClaude<PrayerResponse>(
+    "claude-sonnet-4-6",
     STAGE2_SYSTEM,
     `Please respond to this prayer request from someone at our church:\n\n"${prayerRequest}"`,
     1024
@@ -41,7 +42,8 @@ async function generateResponse(prayerRequest: string): Promise<PrayerResponse> 
 }
 
 async function auditOutput(prayerRequest: string, response: PrayerResponse): Promise<AuditResult> {
-  return callHaiku<AuditResult>(
+  return callClaude<AuditResult>(
+    "claude-sonnet-4-6",
     STAGE3_SYSTEM,
     `Original prayer request:\n"${prayerRequest}"\n\nGenerated response to audit:\n${JSON.stringify(response, null, 2)}`,
     200
