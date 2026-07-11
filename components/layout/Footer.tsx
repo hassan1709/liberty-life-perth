@@ -102,12 +102,12 @@ export default async function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
-            &copy; {new Date().getFullYear()} Liberty Life Perth. All rights reserved.
+        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col gap-3">
+          <p className="text-xs text-white/40 text-center sm:text-left">
+            Liberty Life Perth (libertylifeperth.org) is operated by Liberty Christian Centre Inc, ABN 81&nbsp;763&nbsp;203&nbsp;730, a registered charity with the Australian Charities and Not-for-profits Commission (ACNC).
           </p>
-          <p className="text-xs text-white/40">
-            {address}
+          <p className="text-xs text-white/40 text-center sm:text-left">
+            &copy; {new Date().getFullYear()} Liberty Life Perth. All rights reserved.
           </p>
         </div>
       </div>

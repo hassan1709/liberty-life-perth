@@ -527,7 +527,7 @@ To switch senders (e.g. when Google Workspace Nonprofits is approved), update en
 - [x] Event type emblems — PC Calendar tags drive circular icons on event cards (`public/emblems/`); 4 types: sunday_service, saturday-spanish-service, praying-night, church-outreach
 
 ### Next session
-- [ ] Update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars (new App Password generated)
+- [x] Update `CONTACT_EMAIL_APP_PASSWORD` in Amplify env vars (new App Password generated)
 - [ ] Activate Google Workspace once approved — set up church email accounts (pending Google approval)
 - [ ] Update contact form env vars to use new Workspace email accounts (blocked on Google Workspace)
 - [ ] Add staff photos and content in Sanity Studio (`/studio`)
