@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 
 async function getEvents(): Promise<PCEventWithTags[]> {
   try {
+    const from = new Date().toISOString();
     const data: PCEventsResponse = await pcFetch(
-      "/calendar/v2/event_instances?filter=upcoming&per_page=10&order=starts_at&include=tags",
+      `/calendar/v2/event_instances?where[starts_at][gte]=${from}&per_page=10&order=starts_at&include=tags`,
       0
     );
     const tagMap = new Map((data.included ?? []).map((t: PCTag) => [t.id, t.attributes.name]));
