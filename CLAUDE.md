@@ -88,7 +88,7 @@ libertylifeperth/
 ├── app/
 │   ├── layout.tsx              # Root layout, loads fonts, renders Nav + Footer
 │   ├── globals.css             # @import tailwindcss + @theme brand tokens
-│   ├── page.tsx                # Home (ISR, revalidate 3600s)
+│   ├── page.tsx                # Home (dynamic — force-dynamic, so upcoming events never show stale/past events)
 │   ├── about/
 │   │   └── page.tsx            # SSG (revalidate: false)
 │   ├── announcements/
@@ -340,7 +340,7 @@ The API returns tags via the JSON:API `included` array — resolved in `app/page
 
 | Page | Strategy | Revalidation |
 |---|---|---|
-| Home | ISR | 60 min (`revalidate = 3600`) |
+| Home | Dynamic | Every request (`dynamic = "force-dynamic"`) — was ISR (60 min) until it caused the events section to show already-past events during low-traffic periods; switched to match the Events page strategy |
 | About | SSG | On Sanity webhook (`revalidate: false`) |
 | Announcements | Dynamic | Every request (`dynamic = "force-dynamic"`) |
 | Testimonies (list) | Dynamic | Every request (`dynamic = "force-dynamic"`) |
@@ -398,6 +398,9 @@ Create the transporter inside the POST handler after checking env vars exist, no
 
 **About and Give pages use `revalidate = 60` (not `revalidate = false`):**  
 These were changed from fully static to ISR with a 60-second revalidation as a safety net for Amplify. The webhook still triggers on-demand revalidation — the 60s is just a fallback.
+
+**Home page is `force-dynamic`, not ISR — time-sensitive data can't be time-based ISR'd:**  
+Originally ISR (`revalidate = 3600`). Next.js ISR only regenerates a page when a request arrives *after* the revalidate window has elapsed — with low church-site traffic, the cached HTML (baked with an "upcoming events" filter computed at generation time) could sit stale for many hours past the 1-hour window with nobody visiting to trigger a regen, so visitors during quiet periods saw events that had already happened. Switched to `dynamic = "force-dynamic"` (same strategy as the Events page) so every request re-fetches Sanity settings + Planning Center with a fresh `now`. If this ever needs to go back to ISR for performance, the events fetch specifically needs to stay dynamic (e.g. client-side fetch) rather than baked into cached HTML.
 
 **Amplify password protection blocks the Sanity Studio iframe on sanity.io:**  
 When password protection is enabled, sanity.io cannot embed the studio in an iframe. Content editors should use `https://libertylifeperth.org/studio` directly. The direct URL works fine with or without password protection.
