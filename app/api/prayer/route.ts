@@ -1,6 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk"
 import nodemailer from "nodemailer"
-import { after } from "next/server"
 import { STAGE1_SYSTEM, STAGE2_SYSTEM, STAGE3_SYSTEM } from "./prompts"
 import { FALLBACK_RESPONSE } from "./fallback"
 import type { ValidationResult, PrayerResponse, AuditResult, PrayerRequestBody } from "./types"
@@ -191,19 +190,19 @@ export async function POST(request: Request) {
 
     const finalResponse = audit.valid ? prayerResponse : FALLBACK_RESPONSE
 
-    // Send emails after the response is returned — don't block the user
-    after(() =>
-      Promise.all([
-        sendChurchEmail(name, email, trimmed).catch((err) =>
-          console.error("Church email failed:", err)
-        ),
-        email
-          ? sendConfirmationEmail(name, email, finalResponse).catch((err) =>
-              console.error("Confirmation email failed:", err)
-            )
-          : Promise.resolve(),
-      ])
-    )
+    // Send emails before returning — after() background tasks don't reliably
+    // complete on Amplify's hosting compute, which can freeze/kill the
+    // Lambda right after the response is sent
+    await Promise.all([
+      sendChurchEmail(name, email, trimmed).catch((err) =>
+        console.error("Church email failed:", err)
+      ),
+      email
+        ? sendConfirmationEmail(name, email, finalResponse).catch((err) =>
+            console.error("Confirmation email failed:", err)
+          )
+        : Promise.resolve(),
+    ])
 
     return Response.json({ success: true, data: finalResponse })
   } catch (error) {

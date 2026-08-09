@@ -276,6 +276,9 @@ await fetch(`https://${projectId}.api.sanity.io/v2024-01-01/assets/images/${data
 ### Write client
 `sanityWriteClient` in `lib/sanity/client.ts` uses `createClient` from `@sanity/client` directly (not `next-sanity`). The `next-sanity` wrapper adds stega/perspective layers that interfere with mutations and asset uploads.
 
+### `next/server`'s `after()` is not reliable on Amplify hosting compute
+Prayer request emails were briefly sent via `after()` (deferred until after the response returned) to avoid making the user wait on SMTP. On Amplify, the Lambda running the SSR/API route can freeze or terminate right after the response is sent — the `after()` callback never finished, so emails silently failed to send with nothing in the logs (the callback was killed before its `catch`/`console.error` could even run). The contact form, which `await`s `sendMail` directly before returning, worked fine the whole time. Reverted the prayer route to `await` the emails before returning — see Prayer request feature above. Don't use `after()` for anything that must reliably complete on this host.
+
 ---
 
 ## Prayer request feature
@@ -286,9 +289,11 @@ Three-stage pipeline on every submission:
 3. **Stage 3** — Claude Sonnet audits verse existence and relevance; retries Stage 2 once if it fails
 4. Falls back to hardcoded response if both Stage 2+3 attempts fail
 
-Emails are sent via `after()` (after the response is returned) so the user isn't waiting for SMTP:
+Emails are sent with a plain `await` before the response is returned:
 - Church team notification (to `CONTACT_EMAIL_TO`)
 - Confirmation email to submitter with branded HTML (verses, closing line, service invite) — only if email provided
+
+> Previously used `next/server`'s `after()` to defer these emails until after the response was sent (so the user wasn't waiting on SMTP). Reverted — see the Amplify gotcha below.
 
 Cost: ~$0.01/request (~$1/month at 100 requests).
 
